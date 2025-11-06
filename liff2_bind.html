@@ -23,7 +23,7 @@
       if (!liff.isLoggedIn()) liff.login();
       else liff.getProfile().then(profile => {
         const params = getParams();
-        fetch("https://your-n8n-webhook-url", { // ←你的 n8n webhook網址
+        fetch("https://repeat-taxi.app.n8n.cloud/webhook/group-register", { // ←你的 n8n webhook網址
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
