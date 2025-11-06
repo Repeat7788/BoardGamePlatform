@@ -1,0 +1,58 @@
+{\rtf1\ansi\ansicpg950\cocoartf2822
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;}
+{\*\expandedcolortbl;;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww28600\viewh16380\viewkind0
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 <!doctype html>\
+<html lang="zh-TW">\
+<head>\
+  <meta charset="UTF-8">\
+  <title>\uc0\u25578 \u22296 LINE\u24115 \u34399 \u32129 \u23450 </title>\
+  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>\
+</head>\
+<body>\
+  <div id="result" style="margin: 60px auto; max-width:350px;text-align:center;">\
+    <h2>\uc0\u32129 \u23450 \u20013 \u65292 \u35531 \u31245 \u20505 ...</h2>\
+    <div id="status"></div>\
+  </div>\
+  <script>\
+    function getParams() \{\
+      const url = new URL(window.location.href);\
+      return \{\
+        courseId: url.searchParams.get('course_id') || '',\
+        email: url.searchParams.get('email') || ''\
+      \}\
+    \}\
+\
+    liff.init(\{ liffId: "2008438447-9Nv7VA8a" \}).then(() => \{\
+      if (!liff.isLoggedIn()) liff.login();\
+      else liff.getProfile().then(profile => \{\
+        const params = getParams();\
+        fetch("https://your-n8n-webhook-url", \{ // \uc0\u8592 \u20320 \u30340  n8n webhook\u32178 \u22336 \
+          method: "POST",\
+          headers: \{ "Content-Type": "application/json" \},\
+          body: JSON.stringify(\{\
+            userId: profile.userId,\
+            displayName: profile.displayName,\
+            email: params.email,\
+            course_id: params.courseId,\
+            dt: new Date().toISOString()\
+          \})\
+        \})\
+        .then(res=>res.ok ? res.json() : Promise.reject("POST\uc0\u22833 \u25943 "))\
+        .then(data=>\{\
+          document.getElementById('status').innerHTML =\
+            "<b>\uc0\u32129 \u23450 \u23436 \u25104 \u65292 \u35531 \u22238 \u21040 \u20027 \u38913 \u31561 \u24453 \u25104 \u22296 \u36890 \u30693 \u65281 </b>";\
+        \})\
+        .catch(err => \{\
+          document.getElementById('status').innerHTML =\
+            "<b style='color:red'>\uc0\u32129 \u23450 \u22833 \u25943 \u65292 \u35531 \u31245 \u24460 \u20877 \u35430 \u25110 \u32879 \u32097 \u23458 \u26381 </b>";\
+        \});\
+      \});\
+    \});\
+  </script>\
+</body>\
+</html>\
+}
