@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <title>揪團LINE帳號綁定</title>
+  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+</head>
+<body>
+  <div id="result" style="margin: 60px auto; max-width:350px;text-align:center;">
+    <h2>綁定中，請稍候...</h2>
+    <div id="status"></div>
+  </div>
+  <script>
+    function getParams() {
+      const url = new URL(window.location.href);
+      return {
+        courseId: url.searchParams.get('course_id') || '',
+        email: url.searchParams.get('email') || ''
+      }
+    }
+
+    liff.init({ liffId: "2008438447-9Nv7VA8a" }).then(() => {
+      if (!liff.isLoggedIn()) liff.login();
+      else liff.getProfile().then(profile => {
+        const params = getParams();
+        fetch("https://your-n8n-webhook-url", { // ←你的 n8n webhook網址
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            userId: profile.userId,
+            displayName: profile.displayName,
+            email: params.email,
+            course_id: params.courseId,
+            dt: new Date().toISOString()
+          })
+        })
+        .then(res=>res.ok ? res.json() : Promise.reject("POST失敗"))
+        .then(data=>{
+          document.getElementById('status').innerHTML =
+            "<b>綁定完成，請回到主頁等待成團通知！</b>";
+        })
+        .catch(err => {
+          document.getElementById('status').innerHTML =
+            "<b style='color:red'>綁定失敗，請稍後再試或聯絡客服</b>";
+        });
+      });
+    });
+  </script>
+</body>
+</html>
