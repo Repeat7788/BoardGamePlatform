@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>人類圖桌遊「未來導航」揪團神器</title>
+  <style>
+    body { background: linear-gradient(135deg, #0f4392 0%, #6393d1 100%);
+      margin: 0; padding: 0;
+      font-family: 'Noto Sans TC', 'Microsoft JhengHei', sans-serif;
+      min-height: 100vh; }
+    .container { max-width:900px; width:100%; margin:2rem auto;
+      background:#fff; border-radius:20px; box-shadow:0 20px 60px #0004; overflow:hidden;}
+    .header { background: linear-gradient(135deg,#0f4392 0%,#6393d1 100%);
+      color:#fff;padding:2.5rem 2rem;}
+    .header-content{ display:flex; align-items:center; justify-content:center; gap:2.5rem; margin-bottom:1.5rem;}
+    .logo-image { width:120px; height:120px; object-fit:cover; border-radius:14px; box-shadow:0 2px 8px #0f43924d; }
+    .title-section h1 { margin:0;font-size:2rem;font-weight:700;text-align:left;}
+    .description { margin:0 0 1rem 0; font-size:1rem; opacity:.95; max-width:600px; margin-left:auto; margin-right:auto;
+      line-height:1.6; background:rgba(255,255,255,0.1); padding:1rem 1.5rem; border-radius:12px;}
+    .subtitle { margin:0; font-size:.98rem; opacity:.88; font-style:italic;}
+    .updatetime{margin-top:1.2em;font-size:.98em;color:#fff;opacity:.94;font-weight:600;}
+    .content {padding:2rem;}
+    .process-section{background:#fff;border-radius:16px;padding:2rem;margin-bottom:2rem;border:2px solid #eeba2b;box-shadow:0 4px 20px #eeba2b26;}
+    .process-title{color:#112947;font-size:1.5rem;font-weight:700;text-align:center;margin:0 0 1.5rem 0;}
+    .process-steps{display:flex;justify-content:space-between;align-items:stretch;gap:1rem;}
+    .step{flex:1;display:flex;flex-direction:column;align-items:center;text-align:center;background:#f8e185;padding:1.5rem 1rem;border-radius:12px;border:1px solid #eeba2b;}
+    .step-number{background:#0f4392;color:#fff;width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:1.25rem;margin-bottom:1rem;}
+    .step-content h3{color:#112947;font-size:1.1rem;font-weight:600;margin:0 0 0.75rem 0;}
+    .step-content p{color:#112947;font-size:0.9rem;line-height:1.4;margin:0;opacity:.8;}
+    .course-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:1.5rem;margin-bottom:2rem;}
+    .course-card{background:#fff;border-radius:12px;padding:1.5rem;border:2px solid #b6ccd7;transition:all 0.3s;}
+    .course-card:hover{transform:translateY(-4px);box-shadow:0 8px 20px #0f439233;border-color:#6393d1;}
+    .course-time{font-size:1.25rem;font-weight:700;color:#112947;margin-bottom:1rem;display:flex;align-items:center;gap:0.5rem;}
+    .participant-count{display:flex;align-items:center;gap:0.5rem;margin-bottom:1rem;font-size:1rem;color:#112947;}
+    .count-number{font-size:1.5rem;font-weight:700;color:#0f4392;}
+    .status-badge{display:inline-block;padding:0.5rem 1rem;border-radius:20px;font-size:0.875rem;font-weight:600;margin-bottom:1rem;}
+    .status-confirmed{background:#6393d1;color:#fff;}
+    .status-pending{background:#b6ccd7;color:#112947;}
+    .register-btn{width:100%;padding:0.75rem;background:linear-gradient(135deg,#eeba2b 0%,#f8e185 100%);color:#112947;border:none;border-radius:8px;font-size:1rem;font-weight:600;cursor:pointer;}
+    .register-btn:hover{transform:translateY(-2px);box-shadow:0 4px 12px #eeba2b66;}
+    .modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:1000;justify-content:center;align-items:center;}
+    .modal.active{display:flex;}
+    .modal-content{background:#fff;border-radius:16px;padding:2rem;max-width:400px;width:90%;box-shadow:0 20px 60px #0000004d;display:flex;flex-direction:column;align-items:center;}
+    .modal-content form{width:100%;display:flex;flex-direction:column;align-items:center;}
+    .modal-form-group{width:100%;max-width:260px;margin:0 auto 1.1em auto;}
+    .modal-form-label{display:block;margin-bottom:0.35em;font-weight:600;color:#112947;font-size:1em;text-align:left;}
+    .modal-form-input{width:100%;padding:0.65em;border:2px solid #b6ccd7;border-radius:7px;font-size:1em;box-sizing:border-box;}
+    .modal-form-input:focus{outline:none;border-color:#6393d1;}
+    .modal-actions{display:flex;gap:1rem;margin-top:1.5rem;}
+    .modal-btn{flex:1;padding:0.75rem;border:none;border-radius:8px;font-size:1rem;font-weight:600;cursor:pointer;}
+    .modal-btn-primary{background:linear-gradient(135deg,#eeba2b 0%,#f8e185 100%);color:#112947;}
+    .modal-btn-secondary{background:#b6ccd7;color:#112947;}
+    .toast{position:fixed;bottom:2rem;right:2rem;background:#fff;padding:1rem 1.5rem;border-radius:8px;box-shadow:0 4px 12px #00000026;display:none;align-items:center;gap:0.75rem;z-index:2000;}
+    .toast.active{display:flex;}
+    .toast.success{border-left:4px solid #48bb78;}
+    .toast.error{border-left:4px solid #f56565;}
+  </style>
+  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="header-content">
+        <img class="logo-image" src="https://raw.githubusercontent.com/Repeat7788/BoardGamePlatform/main/for_logo.png" alt="未來導航商品照">
+        <div class="title-section">
+          <h1 id="pageTitle">人類圖桌遊「未來導航」<br><span style="letter-spacing:.2em;">揪團神器</span></h1>
+        </div>
+      </div>
+      <p class="description" id="pageDescription">
+        全球首款結合人類圖原理的互動桌遊。《未來導航》讓你透過遊戲自然理解人類圖、學會選擇、練習決策流程。<br>
+        邀你一起揪團體驗，如果你還沒參加過，千萬不要錯過全新學習方式！
+      </p>
+      <p class="subtitle" id="pageSubtitle">選擇時段揪團，成功成團後將收到LINE通知並進行報名付款。</p>
+      <p id="updateTime" class="updatetime"></p>
+    </div>
+    <div class="content">
+      <div class="process-section">
+        <h2 class="process-title">📋 揪團流程說明</h2>
+        <div class="process-steps">
+          <div class="step"><div class="step-number">1</div><div class="step-content"><h3>點擊揪團</h3><p>進入LINE帳號綁定</p></div></div>
+          <div class="step"><div class="step-number">2</div><div class="step-content"><h3>揪團人數達標</h3><p>系統推播最新狀態</p></div></div>
+          <div class="step"><div class="step-number">3</div><div class="step-content"><h3>正式報名繳費</h3><p>參加者會收到Tally表單/付款連結</p></div></div>
+        </div>
+      </div>
+      <div id="courseGrid" class="course-grid"></div>
+    </div>
+  </div>
+  <div id="registerModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">參加揪團</div>
+      <form id="registerForm">
+        <div style="margin-bottom:.8em;text-align:center;color:#112947;font-size:1.00em;">
+          <p style="margin:0 0 .45em 0">請填寫 Email，並進行LINE帳號綁定</p>
+        </div>
+        <div class="modal-form-group">
+          <label for="inputEmail" class="modal-form-label">Email（報名通知將寄至此信箱）</label>
+          <input id="inputEmail" class="modal-form-input" type="email" maxlength="80" required placeholder="your@email.com" autocomplete="email">
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="modal-btn modal-btn-secondary" id="cancelBtn">取消</button>
+          <button type="submit" class="modal-btn modal-btn-primary" id="submitBtn">前往LINE帳號綁定</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  <div id="toast" class="toast"><span id="toastMessage"></span></div>
+  <script>
+    function updateBannerTime() {
+      const now = new Date();
+      const yyyy = now.getFullYear();
+      const MM = String(now.getMonth() + 1).padStart(2, '0');
+      const dd = String(now.getDate()).padStart(2, '0');
+      const hh = String(now.getHours()).padStart(2, '0');
+      const mm = String(now.getMinutes()).padStart(2, '0');
+      document.getElementById('updateTime').textContent = `最後更新：${yyyy}/${MM}/${dd}, ${hh}:${mm}`;
+    }
+    updateBannerTime();
+
+    const coursesData = [
+      { id: 'taipei-afternoon', name: '平日下午場', time: '14:00-17:00', date: '11/10 (日)', location: '台北', price: 800, currentCount: 2, minParticipants: 3 },
+      { id: 'taipei-evening', name: '平日晚上場', time: '19:00-22:00', date: '11/12 (二)', location: '台北', price: 800, currentCount: 4, minParticipants: 3 },
+      { id: 'taichung-afternoon', name: '假日下午場', time: '14:00-17:00', date: '11/15 (六)', location: '台中', price: 800, currentCount: 6, minParticipants: 3 }
+    ];
+    let selectedCourse = null;
+
+    function renderCourses() {
+      const grid = document.getElementById('courseGrid');
+      grid.innerHTML = '';
+      coursesData.forEach(course => {
+        const count = course.currentCount || 0;
+        const minParticipants = course.minParticipants || 3;
+        const isConfirmed = count >= minParticipants;
+        const card = document.createElement('div');
+        card.className = 'course-card';
+        card.innerHTML = `
+          <div class="course-time">${course.date}｜${course.time}</div>
+          <div class="course-name" style="font-weight:600;color:#112947;margin-bottom: 0.75rem;">
+            ${course.location}｜${course.name}
+          </div>
+          <div class="participant-count">
+            <span>👥 目前揪團：</span>
+            <span class="count-number">${count}</span>
+            <span>人</span>
+          </div>
+          <div class="status-badge ${isConfirmed ? 'status-confirmed' : 'status-pending'}">
+            ${isConfirmed ? '✓ 已成團' : `還差 ${minParticipants - count} 人成團`}
+          </div>
+          <button class="register-btn">我要參加</button>
+        `;
+        card.querySelector('.register-btn').addEventListener('click', () => openRegisterModal(course));
+        grid.appendChild(card);
+      });
+    }
+
+    function openRegisterModal(course) {
+      selectedCourse = course;
+      document.getElementById('registerModal').classList.add('active');
+      document.querySelector('.modal-header').textContent = `參加揪團 - ${course.name}`;
+      document.body.style.overflow = 'hidden';
+      document.getElementById('registerForm').reset();
+    }
+    function closeRegisterModal() {
+      document.getElementById('registerModal').classList.remove('active');
+      selectedCourse = null;
+      document.querySelector('.modal-header').textContent = '參加揪團';
+      document.body.style.overflow = '';
+    }
+    document.getElementById('cancelBtn').onclick = closeRegisterModal;
+    document.getElementById('registerModal').onclick = function(e) {
+      if(e.target === this) closeRegisterModal();
+    };
+
+    document.getElementById('registerForm').onsubmit = function(e) {
+      e.preventDefault();
+      const email = document.getElementById('inputEmail').value.trim();
+      if (!email) { showToast('請輸入有效信箱'); return; }
+      const url = "https://liff.line.me/2008438447-9Nv7VA8a?course_id=" + (selectedCourse?.id || "") + "&email=" + encodeURIComponent(email);
+      window.location.href = url;
+      closeRegisterModal();
+    };
+
+    function showToast(message,type='success') {
+      const toast = document.getElementById('toast');
+      document.getElementById('toastMessage').textContent = message;
+      toast.className = `toast ${type} active`;
+      setTimeout(()=>{toast.className = 'toast';},2600);
+    }
+    renderCourses();
+  </script>
+</body>
+</html>
