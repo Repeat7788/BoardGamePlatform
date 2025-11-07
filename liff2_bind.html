@@ -1,104 +1,191 @@
-<!doctype html>
-<html lang="zh-TW">
+<!-- 
+檔案名稱: liff2_bind.html
+說明: 這是 LINE LIFF 綁定成功的頁面。
+功能:
+1. 初始化 LIFF SDK。
+2. 檢查登入狀態，如果未登入則導向登入。
+3. 登入後，獲取用戶資料 (userId, displayName)。
+4. 將用戶資料 POST 給 n8n Webhook。
+5. 成功後，顯示優化的成功訊息，並引導用戶回 LINE 官方帳號。
+6. 移除 liff.closeWindow() 以便用戶閱讀成功訊息。
+-->
+<!DOCTYPE html>
+<html lang="zh-Hant">
 <head>
-  <meta charset="UTF-8">
-  <title>揪團 LINE 帳號綁定</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
-  <style>
-    body { font-family:"Segoe UI", "PingFang TC", "Noto Sans", "Microsoft JhengHei", sans-serif; background:#fff; margin:0; padding:0; }
-    #result { margin: 55px auto; max-width:400px; text-align:center; font-size:1.45em; color:#21292d; }
-    h2 { margin-bottom: .8em; font-size:1.38em; }
-    #status { margin-top: 1.5em; line-height:1.7; font-size:1.1em; }
-    .success { color:#144fa6; font-weight:700;}
-    .tips { color:#555; font-size:.97em; margin-top:1em;}
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>揪團 LINE 帳號綁定</title>
+    <!-- 引入 Tailwind CSS 確保響應式設計和美觀 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'line-green': '#06C755',
+                        'line-dark': '#00973F',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'Noto Sans TC', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* 確保全屏且居中 */
+        body {
+            background-color: #f0f4f8; /* 淺灰色背景 */
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 1rem;
+        }
+        /* 標題動畫效果 */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
 </head>
-<body>
-  <div id="result">
-    <h2>揪團 LINE 帳號綁定</h2>
-    <div id="status">正在初始化 LIFF 服務...</div>
-    <div class="tips"></div>
-  </div>
-  <script>
-    // 1. 取得 URL 參數
-    function getParams() {
-      const url = new URL(window.location.href);
-      return {
-        courseId: url.searchParams.get('course_id') || '',
-        email: url.searchParams.get('email') || ''
-      }
-    }
+<body class="font-sans">
 
-    // 2. LIFF 初始化流程
-    liff.init({ liffId: "2008438447-9Nv7VA8a" })
-      .then(() => {
-        // 檢查是否已登入
-        if (!liff.isLoggedIn()) {
-          // 導向登入頁面，此處會中斷程式執行並重新導向
-          document.getElementById('status').textContent = '正在導向 LINE 登入授權...';
-          // 這裡也可以選擇性地保留您的 course_id 和 email 參數
-          // liff.login() 會自動嘗試保留 URL 參數，但 LIFF 設定仍需正確
-          liff.login();
-          return; 
-        }
+    <!-- 主容器 -->
+    <div id="app" class="w-full max-w-sm bg-white p-6 sm:p-8 rounded-xl shadow-2xl text-center transition duration-300">
+        
+        <!-- 標題 -->
+        <h1 class="text-3xl font-bold mb-6 text-gray-800" style="animation: fadeIn 0.5s ease-out;">揪團 LINE 帳號綁定</h1>
+        
+        <!-- 狀態區塊 -->
+        <div id="status-display">
+            <!-- 初始載入中訊息 -->
+            <div class="text-lg text-gray-500 flex items-center justify-center space-x-2">
+                <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-line-dark" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <span>正在驗證身份與進行綁定...</span>
+            </div>
+        </div>
 
-        // --- 成功登入後 (第二次載入) 才會執行以下程式碼 ---
-        
-        document.getElementById('status').textContent = '已授權，正在傳輸資料...';
+        <!-- 錯誤資訊 (隱藏) -->
+        <p id="error-message" class="text-red-600 font-medium mt-4 hidden"></p>
+        
+        <!-- 用戶資訊 (除錯用，可隱藏) -->
+        <p id="user-info" class="text-xs text-gray-400 mt-4 break-all hidden"></p>
+    </div>
 
-        liff.getProfile()
-          .then(profile => {
-            // 獲取 Email，需要 LIFF 後台有勾選 'email' 權限
-            const decodedIdToken = liff.getDecodedIDToken();
-            const emailFromToken = decodedIdToken ? decodedIdToken.email : '';
-            
-            const params = getParams();
-            const finalEmail = emailFromToken || params.email; // 優先使用 LINE 取得的 email
+    <!-- 引入 LIFF SDK -->
+    <script src="https://static.line-scdn.net/liff/sdk/2.23.1/liff.js"></script>
+    <script>
+        // LIFF ID (請替換為您的實際 LIFF ID)
+        const LIFF_ID = '2008438447-9Nv7VA8a';
+        // n8n Webhook URL (生產環境 URL)
+        const WEBHOOK_URL = 'https://repeat-taxi.app.n8n.cloud/webhook/group-register';
 
-            // 3. 執行 Webhook 傳輸 (n8n)
-            fetch("https://repeat-taxi.app.n8n.cloud/webhook/group-register", {
-              method: "POST", headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                userId: profile.userId,
-                displayName: profile.displayName,
-                email: finalEmail,
-                course_id: params.courseId,
-                dt: new Date().toISOString()
-              })
-            })
-            .then(res => {
-              if (res.ok) {
-                document.getElementById('status').innerHTML =
-                  '<div class="success">報名成功！<br>可回官方帳號輸入<br>「桌遊揪團」查看目前揪團人數</div>';
-                document.querySelector('.tips').textContent = '此視窗將自動關閉，如未自動關閉可直接手動關閉';
-                setTimeout(() => { liff.closeWindow(); }, 1800);
-              } else {
-                // Webhook 傳輸成功，但 n8n 回傳非 200 狀態碼
-                throw new Error(`Webhook 回傳異常: ${res.status}`);
-              }
-            })
-            .catch(err => {
-              // Webhook 網路錯誤或非 200 狀態碼
-              console.error('Webhook 錯誤:', err); 
-              document.getElementById('status').innerHTML =
-                `<b style="color:#e02c2c">Webhook 傳輸失敗，請稍後再試或聯絡客服</b>`;
-            });
-          })
-          .catch(err => {
-            // getProfile() 失敗
-            console.error('取得個人資料失敗:', err);
-            document.getElementById('status').innerHTML =
-              `<b style="color:#e02c2c">取得 LINE 資訊失敗，請確認是否允許授權。</b>`;
-          });
-      })
-      .catch((err) => {
-        // 4. LIFF 初始化失敗處理 (最關鍵的錯誤處理)
-        console.error('LIFF 初始化失敗:', err);
-        document.getElementById('status').innerHTML =
-            `<b style="color:#e02c2c">LIFF 啟動錯誤，請檢查 LIFF ID 或 Endpoint URL。</b>`;
-        document.querySelector('.tips').textContent = `錯誤碼/訊息：${err.code || err.message}`;
-      });
-  </script>
+        // 顯示狀態或錯誤訊息
+        function updateStatus(isSuccess, message, details = '') {
+            const statusDiv = document.getElementById('status-display');
+            const errorElement = document.getElementById('error-message');
+            const userInfoElement = document.getElementById('user-info');
+
+            statusDiv.innerHTML = ''; // 清空載入訊息
+
+            if (isSuccess) {
+                // 成功排版
+                statusDiv.innerHTML = `
+                    <div class="space-y-6">
+                        <svg class="w-16 h-16 mx-auto text-line-green" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        <p class="text-2xl font-bold text-line-dark tracking-wide animate__animated animate__fadeIn">綁定成功！</p>
+                        <div class="bg-line-green/10 p-4 rounded-lg border-l-4 border-line-green text-gray-700 text-left">
+                            <p class="font-semibold mb-2">✅ 您的帳號已成功加入揪團名單。</p>
+                            <p class="text-sm">請您返回 LINE 官方帳號，輸入：</p>
+                            <div class="mt-2 p-2 bg-white rounded font-mono text-center font-bold text-lg text-gray-800 tracking-wider shadow-sm">
+                                桌遊揪團
+                            </div>
+                            <p class="mt-2 text-sm text-gray-600">即可查看目前已報名人數與狀態，無需再次綁定。</p>
+                        </div>
+                    </div>
+                `;
+                errorElement.classList.add('hidden');
+                userInfoElement.classList.add('hidden');
+                
+            } else {
+                // 失敗排版
+                statusDiv.innerHTML = `
+                    <svg class="w-16 h-16 mx-auto text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <p class="text-xl font-bold text-red-600 mt-3">綁定失敗！</p>
+                `;
+                errorElement.textContent = message;
+                errorElement.classList.remove('hidden');
+                // 顯示詳細錯誤，方便除錯
+                userInfoElement.textContent = details;
+                userInfoElement.classList.remove('hidden'); 
+            }
+        }
+
+        // 執行綁定流程
+        async function runBinding() {
+            try {
+                // 1. 初始化 LIFF
+                await liff.init({ liffId: LIFF_ID });
+
+                if (!liff.isLoggedIn()) {
+                    // 2. 未登入則跳轉登入
+                    liff.login({ redirectUri: window.location.href });
+                    return;
+                }
+
+                // 3. 獲取用戶資料
+                const profile = await liff.getProfile();
+                const userPayload = {
+                    userId: profile.userId,
+                    displayName: profile.displayName,
+                    // 為了除錯，我們也可以傳遞 token
+                    idToken: liff.getIDToken(), 
+                    source: 'LIFF_Bind',
+                };
+                
+                // 4. 執行 Webhook 傳輸 (n8n)
+                const fetchResponse = await fetch(WEBHOOK_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(userPayload)
+                });
+
+                // 5. 判斷 n8n 回覆狀態
+                if (fetchResponse.ok) {
+                    // 成功回覆，因為 n8n 設為 'Immediately'，所以會收到 204/200
+                    updateStatus(true, '綁定成功！');
+                    
+                    // 備註：我們故意不調用 liff.closeWindow()，讓用戶可以閱讀成功訊息
+                    
+                } else {
+                    // Webhook 傳輸失敗 (例如 n8n 內部錯誤或狀態碼非 2xx)
+                    const errorText = await fetchResponse.text();
+                    updateStatus(false, 
+                        'Webhook 傳輸失敗，請稍後再試或聯絡客服。', 
+                        `n8n Status: ${fetchResponse.status}. 錯誤訊息: ${errorText.substring(0, 100)}...`);
+                }
+
+            } catch (error) {
+                // LIFF 或網路錯誤
+                let displayMessage = 'LIFF 啟動或登入錯誤，請檢查 LIFF ID 或網路連線。';
+                if (error.message.includes('User does not have a LINE account')) {
+                    displayMessage = '您目前使用的瀏覽器非 LINE 內建，無法登入 LINE 帳號。';
+                }
+                console.error("LIFF/Binding Error:", error);
+                updateStatus(false, displayMessage, `詳細錯誤: ${error.message}`);
+            }
+        }
+
+        // 開始執行
+        runBinding();
+    </script>
 </body>
 </html>
