@@ -1,9 +1,18 @@
+<!-- 
+檔案名稱: liff2_bind.html
+說明: 這是 LINE LIFF 綁定成功的頁面。
+功能:
+1. 修正 LIFF SDK 載入時序問題 (使用 DOMContentLoaded)。
+2. 強化錯誤診斷，特別捕捉 LIFF SDK 初始化時的錯誤類型。
+3. n8n Webhook 傳輸成功後，顯示優化的成功訊息，並引導用戶回 LINE 官方帳號。
+-->
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>揪團 LINE 帳號綁定</title>
+    <!-- 引入 Tailwind CSS 確保響應式設計和美觀 -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -39,11 +48,15 @@
 </head>
 <body class="font-sans">
 
+    <!-- 主容器 -->
     <div id="app" class="w-full max-w-sm bg-white p-6 sm:p-8 rounded-xl shadow-2xl text-center transition duration-300">
         
+        <!-- 標題 -->
         <h1 class="text-3xl font-bold mb-6 text-gray-800" style="animation: fadeIn 0.5s ease-out;">揪團 LINE 帳號綁定</h1>
         
+        <!-- 狀態區塊 -->
         <div id="status-display">
+            <!-- 初始載入中訊息 -->
             <div class="text-lg text-gray-500 flex items-center justify-center space-x-2">
                 <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-line-dark" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -53,16 +66,19 @@
             </div>
         </div>
 
+        <!-- 錯誤資訊 (隱藏) -->
         <p id="error-message" class="text-red-600 font-medium mt-4 hidden"></p>
         
+        <!-- 用戶資訊 (除錯用，可隱藏) -->
         <p id="user-info" class="text-xs text-gray-400 mt-4 break-all hidden"></p>
     </div>
 
+    <!-- 引入 LIFF SDK -->
     <script src="https://static.line-scdn.net/liff/sdk/2.23.1/liff.js"></script>
     <script>
         // LIFF ID (請替換為您的實際 LIFF ID)
         const LIFF_ID = '2008438447-9Nv7VA8a';
-        // n8n Webhook URL (生產環境 URL)
+        // n8n Webhook URL (生產環境 URL) - 這裡的網址是正確的
         const WEBHOOK_URL = 'https://repeat-taxi.app.n8n.cloud/webhook/group-register';
 
         // 顯示狀態或錯誤訊息
