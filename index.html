@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>人類圖桌遊「未來導航」揪團神器</title>
   <style>
+    /* 您的自訂 CSS 樣式完全保留 */
     body { background: linear-gradient(135deg, #0f4392 0%, #6393d1 100%);
       margin: 0; padding: 0;
       font-family: 'Noto Sans TC', 'Microsoft JhengHei', sans-serif;
@@ -18,8 +19,8 @@
     .title-section h1 { margin:0;font-size:2rem;font-weight:700;text-align:left;}
     .description { margin:0 0 1rem 0; font-size:1rem; opacity:.95; max-width:600px; margin-left:auto; margin-right:auto;
       line-height:1.6; background:rgba(255,255,255,0.1); padding:1rem 1.5rem; border-radius:12px;}
-    .subtitle { margin:0; font-size:.98rem; opacity:.88; font-style:italic;}
-    .updatetime{margin-top:1.2em;font-size:.98em;color:#fff;opacity:.94;font-weight:600;}
+    .subtitle { margin:0; font-size:.98rem; opacity:.88; font-style:italic; text-align: center;}
+    .updatetime{margin-top:1.2em;font-size:.98em;color:#fff;opacity:.94;font-weight:600; text-align: center;}
     .content {padding:2rem;}
     .process-section{background:#fff;border-radius:16px;padding:2rem;margin-bottom:2rem;border:2px solid #eeba2b;box-shadow:0 4px 20px #eeba2b26;}
     .process-title{color:#112947;font-size:1.5rem;font-weight:700;text-align:center;margin:0 0 1.5rem 0;}
@@ -51,12 +52,11 @@
     .modal-btn{flex:1;padding:0.75rem;border:none;border-radius:8px;font-size:1rem;font-weight:600;cursor:pointer;}
     .modal-btn-primary{background:linear-gradient(135deg,#eeba2b 0%,#f8e185 100%);color:#112947;}
     .modal-btn-secondary{background:#b6ccd7;color:#112947;}
-    .toast{position:fixed;bottom:2rem;right:2rem;background:#fff;padding:1rem 1.5rem;border-radius:8px;box-shadow:0 4px 12px #00000026;display:none;align-items:center;gap:0.75rem;z-index:2000;}
-    .toast.active{display:flex;}
-    .toast.success{border-left:4px solid #48bb78;}
-    .toast.error{border-left:4px solid #f56565;}
+    .toast{position:fixed;bottom:2rem;right:2rem;background:#fff;padding:1rem 1.5rem;border-radius:8px;box-shadow:0 4px 12px #00000026;display:none;align-items:center;gap:0.75rem;z-index:2000;transition:opacity 0.3s;}
+    .toast.active{display:flex; opacity:1;}
+    .toast.success{border-left:4px solid #48bb78; color:#38a169;}
+    .toast.error{border-left:4px solid #f56565; color:#e53e3e;}
   </style>
-  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 </head>
 <body>
   <div class="container">
@@ -71,41 +71,76 @@
         全球首款結合人類圖原理的互動桌遊。《未來導航》讓你透過遊戲自然理解人類圖、學會選擇、練習決策流程。<br>
         邀你一起揪團體驗，如果你還沒參加過，千萬不要錯過全新學習方式！
       </p>
-      <p class="subtitle" id="pageSubtitle">選擇時段揪團，成功成團後將收到LINE通知並進行報名付款。</p>
-      <p id="updateTime" class="updatetime"></p>
+      <p class="subtitle" id="pageSubtitle">選擇時段揪團，成功成團後將收到 Email 通知並進行報名付款。</p>
+      <p id="updateTime" class="updatetime">最後更新：----/--/--, --:--</p>
     </div>
     <div class="content">
       <div class="process-section">
         <h2 class="process-title">📋 揪團流程說明</h2>
         <div class="process-steps">
-          <div class="step"><div class="step-number">1</div><div class="step-content"><h3>點擊揪團</h3><p>進入LINE帳號綁定</p></div></div>
-          <div class="step"><div class="step-number">2</div><div class="step-content"><h3>揪團人數達標</h3><p>系統推播最新狀態</p></div></div>
+          <div class="step"><div class="step-number">1</div><div class="step-content"><h3>點擊參加</h3><p>填寫 Email 與顯示名稱</p></div></div>
+          <div class="step"><div class="step-number">2</div><div class="step-content"><h3>Email 確認報名</h3><p>系統推播最新狀態</p></div></div>
           <div class="step"><div class="step-number">3</div><div class="step-content"><h3>正式報名繳費</h3><p>參加者會收到Tally表單/付款連結</p></div></div>
         </div>
       </div>
-      <div id="courseGrid" class="course-grid"></div>
+      <div id="courseGrid" class="course-grid">
+        </div>
     </div>
   </div>
+  
   <div id="registerModal" class="modal">
     <div class="modal-content">
-      <div class="modal-header">參加揪團</div>
+      <div class="modal-header" style="font-size:1.25rem;font-weight:700;color:#0f4392;margin-bottom:1rem;">參加揪團</div>
+      
       <form id="registerForm">
         <div style="margin-bottom:.8em;text-align:center;color:#112947;font-size:1.00em;">
-          <p style="margin:0 0 .45em 0">請填寫 Email，並進行LINE帳號綁定</p>
+          <p style="margin:0 0 .45em 0">請填寫姓名與email，送出後即完成意願登記。</p>
         </div>
+        
         <div class="modal-form-group">
-          <label for="inputEmail" class="modal-form-label">Email（報名通知將寄至此信箱）</label>
+          <label for="inputEmail" class="modal-form-label">Email（報名通知將寄至此信箱）*</label>
           <input id="inputEmail" class="modal-form-input" type="email" maxlength="80" required placeholder="your@email.com" autocomplete="email">
         </div>
+
+        <div class="modal-form-group">
+          <label for="inputDisplayName" class="modal-form-label">課堂稱呼（選填，方便通知）</label>
+          <input id="inputDisplayName" class="modal-form-input" type="text" maxlength="50" placeholder="例如：桌遊小天使">
+        </div>
+        
+        <input type="hidden" id="courseIdInput" name="courseId">
+
         <div class="modal-actions">
           <button type="button" class="modal-btn modal-btn-secondary" id="cancelBtn">取消</button>
-          <button type="submit" class="modal-btn modal-btn-primary" id="submitBtn">前往LINE帳號綁定</button>
+          <button type="submit" class="modal-btn modal-btn-primary" id="submitBtn">確認送出意願</button>
         </div>
       </form>
     </div>
   </div>
+  
   <div id="toast" class="toast"><span id="toastMessage"></span></div>
-  <script>
+
+<script>
+    // 【請修改這裡！】您的 n8n Webhook URL (用於接收報名資料)
+    const ENROLL_WEBHOOK_URL = 'https://repeat-taxi.app.n8n.cloud/webhook/group-register'; 
+    // Vercel Serverless Function API 網址 (用於取得即時統計人數)
+    const COUNT_API_URL = '/api/count'; 
+
+    // 成團人數門檻 (可以根據您的課程需求調整)
+    const MIN_ATTENDEES = 3; 
+
+    // 模擬課程數據 (會被 API 數據覆蓋)
+    let coursesData = [
+      // 這裡的 id 必須與 api/count.js 中回傳的 key 值匹配
+      // 【注意】如果修改這裡的時段，請確保 id 保持不變，或同步修改 api/count.js
+      { id: 'taipei-afternoon', name: '平日下午場', time: '14:00-17:00', date: '11/10 (日)', location: '台北', currentCount: 0, minParticipants: MIN_ATTENDEES },
+      { id: 'taipei-evening', name: '平日晚上場', time: '19:00-22:00', date: '11/12 (二)', location: '台北', currentCount: 0, minParticipants: MIN_ATTENDEES },
+      { id: 'taichung-afternoon', name: '假日下午場', time: '14:00-17:00', date: '11/15 (六)', location: '台中', currentCount: 0, minParticipants: MIN_ATTENDEES }
+    ];
+    let selectedCourse = null;
+
+
+    // --- 輔助函式 ---
+
     function updateBannerTime() {
       const now = new Date();
       const yyyy = now.getFullYear();
@@ -115,24 +150,42 @@
       const mm = String(now.getMinutes()).padStart(2, '0');
       document.getElementById('updateTime').textContent = `最後更新：${yyyy}/${MM}/${dd}, ${hh}:${mm}`;
     }
-    updateBannerTime();
 
-    const coursesData = [
-      { id: 'taipei-afternoon', name: '平日下午場', time: '14:00-17:00', date: '11/10 (日)', location: '台北', price: 800, currentCount: 2, minParticipants: 3 },
-      { id: 'taipei-evening', name: '平日晚上場', time: '19:00-22:00', date: '11/12 (二)', location: '台北', price: 800, currentCount: 4, minParticipants: 3 },
-      { id: 'taichung-afternoon', name: '假日下午場', time: '14:00-17:00', date: '11/15 (六)', location: '台中', price: 800, currentCount: 6, minParticipants: 3 }
-    ];
-    let selectedCourse = null;
+    function showToast(message, type = 'success') {
+      const toast = document.getElementById('toast');
+      document.getElementById('toastMessage').textContent = message;
+      toast.className = `toast ${type} active`;
+      setTimeout(() => {
+        toast.className = 'toast';
+      }, 3000); // 顯示 3 秒
+    }
+    
+    // --- 渲染與狀態更新 ---
 
     function renderCourses() {
       const grid = document.getElementById('courseGrid');
       grid.innerHTML = '';
       coursesData.forEach(course => {
         const count = course.currentCount || 0;
-        const minParticipants = course.minParticipants || 3;
+        const minParticipants = course.minParticipants || MIN_ATTENDEES;
         const isConfirmed = count >= minParticipants;
         const card = document.createElement('div');
         card.className = 'course-card';
+        
+        // 狀態文字
+        let statusText;
+        let statusClass;
+        if (isConfirmed) {
+            statusText = '✓ 已成團';
+            statusClass = 'status-confirmed';
+        } else if (count > 0) {
+            statusText = `還差 ${minParticipants - count} 人成團`;
+            statusClass = 'status-pending';
+        } else {
+            statusText = `尚無報名`;
+            statusClass = 'status-pending'; // 可以使用不同的 pending 樣式
+        }
+
         card.innerHTML = `
           <div class="course-time">${course.date}｜${course.time}</div>
           <div class="course-name" style="font-weight:600;color:#112947;margin-bottom: 0.75rem;">
@@ -140,53 +193,171 @@
           </div>
           <div class="participant-count">
             <span>👥 目前揪團：</span>
-            <span class="count-number">${count}</span>
+            <span class="count-number" id="count-${course.id}">${count}</span>
             <span>人</span>
           </div>
-          <div class="status-badge ${isConfirmed ? 'status-confirmed' : 'status-pending'}">
-            ${isConfirmed ? '✓ 已成團' : `還差 ${minParticipants - count} 人成團`}
+          <div class="status-badge ${statusClass}" id="status-${course.id}">
+            ${statusText}
           </div>
-          <button class="register-btn">我要參加</button>
+          <button class="register-btn" data-course-id="${course.id}">我要參加</button>
         `;
-        card.querySelector('.register-btn').addEventListener('click', () => openRegisterModal(course));
+        // 綁定點擊事件
+        card.querySelector('.register-btn').addEventListener('click', (e) => {
+            const courseId = e.target.dataset.courseId;
+            const course = coursesData.find(c => c.id === courseId);
+            if (course) {
+                openRegisterModal(course);
+            }
+        });
         grid.appendChild(card);
       });
     }
 
+    async function fetchAndUpdateCounts() {
+        try {
+            // 從 Vercel 部署的 Serverless Function 取得模擬 Notion 統計數據
+            const response = await fetch(COUNT_API_URL); 
+            if (!response.ok) {
+                throw new Error('無法從 API 取得人數統計');
+            }
+            const data = await response.json(); 
+            
+            if (!data.counts || typeof data.counts !== 'object') {
+                 throw new Error('API 回傳的資料結構錯誤');
+            }
+
+            const counts = data.counts; 
+            
+            // 遍歷 coursesData，更新 currentCount
+            coursesData = coursesData.map(course => {
+                const count = counts[course.id] !== undefined ? counts[course.id] : course.currentCount;
+                // 更新該卡片的 DOM 元素
+                const countElement = document.getElementById(`count-${course.id}`);
+                const statusElement = document.getElementById(`status-${course.id}`);
+
+                if (countElement && statusElement) {
+                    countElement.textContent = count;
+                    const minParticipants = course.minParticipants || MIN_ATTENDEES;
+                    const isConfirmed = count >= minParticipants;
+                    
+                    statusElement.classList.remove('status-confirmed', 'status-pending');
+
+                    if (isConfirmed) {
+                        statusElement.textContent = '✓ 已成團';
+                        statusElement.classList.add('status-confirmed');
+                    } else if (count > 0) {
+                        statusElement.textContent = `還差 ${minParticipants - count} 人成團`;
+                        statusElement.classList.add('status-pending');
+                    } else {
+                        statusElement.textContent = `尚無報名`;
+                        statusElement.classList.add('status-pending');
+                    }
+                }
+
+                return { ...course, currentCount: count };
+            });
+
+        } catch (error) {
+            console.error('Error fetching and updating counts:', error);
+            // 發生錯誤時，將計數顯示為無法讀取
+            document.querySelectorAll('[id^="count-"]').forEach(el => el.textContent = 'ERR');
+        }
+    }
+
+    // --- Modal 邏輯 ---
+
     function openRegisterModal(course) {
       selectedCourse = course;
       document.getElementById('registerModal').classList.add('active');
-      document.querySelector('.modal-header').textContent = `參加揪團 - ${course.name}`;
+      document.querySelector('.modal-header').textContent = `參加揪團 - ${course.date} ${course.location} ${course.name}`;
       document.body.style.overflow = 'hidden';
       document.getElementById('registerForm').reset();
+      document.getElementById('courseIdInput').value = course.id; // 設定隱藏欄位值
+      document.getElementById('submitBtn').disabled = false;
+      document.getElementById('submitBtn').textContent = '確認送出意願';
     }
+
     function closeRegisterModal() {
       document.getElementById('registerModal').classList.remove('active');
       selectedCourse = null;
-      document.querySelector('.modal-header').textContent = '參加揪團';
       document.body.style.overflow = '';
     }
+
+    // 報名表單提交 (直接 POST 到 n8n Webhook)
+    document.getElementById('registerForm').onsubmit = async function(e) {
+      e.preventDefault();
+      
+      const email = document.getElementById('inputEmail').value.trim();
+      // 如果用戶沒有填寫，使用 '匿名用戶' 作為預設值
+      const displayName = document.getElementById('inputDisplayName').value.trim() || '匿名用戶'; 
+      const courseId = document.getElementById('courseIdInput').value;
+
+      const submitBtn = document.getElementById('submitBtn');
+      submitBtn.disabled = true;
+      submitBtn.textContent = '送出中... 請稍候';
+      
+      const payload = {
+          email: email,
+          displayName: displayName, 
+          courseId: courseId,
+          source: 'WebForm' // 標記來源
+      };
+
+      try {
+          const response = await fetch(ENROLL_WEBHOOK_URL, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(payload)
+          });
+
+          if (response.ok) {
+              showToast('✅ 報名成功！感謝您的參與，請留意 Email 收取後續通知。', 'success');
+              
+              // 成功後延遲關閉 modal，並更新人數
+              setTimeout(() => {
+                  closeRegisterModal();
+                  fetchAndUpdateCounts(); // 報名成功立即更新人數
+              }, 1500); 
+
+          } else {
+              const errorText = await response.text();
+              console.error('Webhook Error:', errorText);
+              showToast('❌ 報名失敗。後台錯誤，請聯絡管理員。', 'error');
+              submitBtn.disabled = false;
+              submitBtn.textContent = '確認送出意願';
+          }
+      } catch (error) {
+          console.error('Fetch Error:', error);
+          showToast('❌ 網路連線錯誤，請檢查您的網路或稍後再試。', 'error');
+          submitBtn.disabled = false;
+          submitBtn.textContent = '確認送出意願';
+      }
+    };
+
+
+    // --- 初始化與事件綁定 ---
+
     document.getElementById('cancelBtn').onclick = closeRegisterModal;
     document.getElementById('registerModal').onclick = function(e) {
       if(e.target === this) closeRegisterModal();
     };
 
-    document.getElementById('registerForm').onsubmit = function(e) {
-      e.preventDefault();
-      const email = document.getElementById('inputEmail').value.trim();
-      if (!email) { showToast('請輸入有效信箱'); return; }
-      const url = "https://liff.line.me/2008438447-9Nv7VA8a?course_id=" + (selectedCourse?.id || "") + "&email=" + encodeURIComponent(email);
-      window.location.href = url;
-      closeRegisterModal();
-    };
 
-    function showToast(message,type='success') {
-      const toast = document.getElementById('toast');
-      document.getElementById('toastMessage').textContent = message;
-      toast.className = `toast ${type} active`;
-      setTimeout(()=>{toast.className = 'toast';},2600);
-    }
-    renderCourses();
-  </script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // 1. 渲染卡片 (第一次渲染使用本地的 currentCount: 0)
+        renderCourses();
+        
+        // 2. 立即取得並更新人數
+        fetchAndUpdateCounts();
+
+        // 3. 設定定時更新 (每 10 秒)
+        setInterval(fetchAndUpdateCounts, 10000); 
+
+        // 4. 更新頁面時間
+        updateBannerTime();
+        setInterval(updateBannerTime, 60000); // 每分鐘更新一次時間
+    });
+
+</script>
 </body>
 </html>
