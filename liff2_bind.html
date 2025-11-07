@@ -2,10 +2,9 @@
 檔案名稱: liff2_bind.html
 說明: 這是 LINE LIFF 綁定成功的頁面。
 功能:
-1. 修正 LIFF SDK 載入時序問題 (使用 DOMContentLoaded)。
-2. 強化錯誤診斷，特別捕捉 LIFF SDK 初始化時的錯誤類型。
-3. n8n Webhook 傳輸成功後，顯示優化的成功訊息，並引導用戶回 LINE 官方帳號。
-4. 修正 liff.login() 參數，避免在外部瀏覽器中發生重導錯誤。
+1. 【修正】將 LIFF SDK 移至 <head> 並使用 async 確保提前載入。
+2. 強化錯誤診斷，捕捉 liff 變數未定義的問題。
+3. n8n Webhook 傳輸成功後，顯示優化的成功訊息。
 -->
 <!DOCTYPE html>
 <html lang="zh-Hant">
@@ -46,6 +45,9 @@
             to { opacity: 1; transform: translateY(0); }
         }
     </style>
+
+    <!-- 【關鍵變更點 1】將 LIFF SDK 移到 <head> 區塊，使用 async 盡快載入 -->
+    <script src="https://static.line-scdn.net/liff/sdk/2.23.1/liff.js" async></script>
 </head>
 <body class="font-sans">
 
@@ -74,8 +76,7 @@
         <p id="user-info" class="text-xs text-gray-400 mt-4 break-all hidden"></p>
     </div>
 
-    <!-- 引入 LIFF SDK -->
-    <script src="https://static.line-scdn.net/liff/sdk/2.23.1/liff.js"></script>
+    <!-- 【關鍵變更點 2】將主要邏輯移到底部，並移除 DOMContentLoaded 確保 LIFF SDK 載入後能立即運行 -->
     <script>
         // LIFF ID (請替換為您的實際 LIFF ID)
         const LIFF_ID = '2008438447-9Nv7VA8a';
@@ -87,6 +88,12 @@
             const statusDiv = document.getElementById('status-display');
             const errorElement = document.getElementById('error-message');
             const userInfoElement = document.getElementById('user-info');
+
+            // 確保所有 DOM 元素都已載入
+            if (!statusDiv || !errorElement || !userInfoElement) {
+                console.warn('DOM elements not fully ready for status update.');
+                return;
+            }
 
             statusDiv.innerHTML = ''; // 清空載入訊息
 
@@ -129,13 +136,20 @@
 
         // 執行綁定流程
         async function runBinding() {
+            // 由於 LIFF SDK 是 async 載入，我們加入一個判斷，確保 liff 變數存在
+            if (typeof liff === 'undefined') {
+                updateStatus(false, 
+                    'LIFF SDK 載入失敗！請檢查網路或 LIFF 程式碼引入。', 
+                    '錯誤: liff.js 檔案可能未成功載入。請確認您的網路連線。');
+                return;
+            }
+
             try {
                 // 1. 初始化 LIFF
                 await liff.init({ liffId: LIFF_ID });
 
                 if (!liff.isLoggedIn()) {
-                    // 2. 未登入則跳轉登入 (移除 redirectUri，讓 LIFF 預設使用 Endpoint URL)
-                    // 這一步修正了在 Safari 中點擊 LIFF 連結時可能發生的重導錯誤。
+                    // 2. 未登入則跳轉登入
                     liff.login(); 
                     return;
                 }
@@ -168,17 +182,12 @@
                 }
 
             } catch (error) {
-                // *** 強化診斷區塊：捕捉 LIFF 初始化或登入時的錯誤 ***
+                // *** 捕捉 LIFF 初始化或登入時的錯誤 ***
                 let displayMessage = 'LIFF 啟動或登入錯誤，請檢查 LIFF ID 或網路連線。';
                 let detailMessage = `詳細錯誤: ${error.message}`;
 
-                // 如果錯誤是 ReferenceError 且與 liff 有關，表示 SDK 載入失敗
-                if (error.name === 'ReferenceError' && error.message.includes('liff is not defined')) {
-                    displayMessage = 'LIFF SDK 載入失敗！請檢查網路或 LIFF 程式碼引入。';
-                    detailMessage = '錯誤: liff.js 檔案可能未成功載入。請確認您的網路連線。';
-                } 
                 // 如果錯誤是來自 LIFF SDK 本身 (例如 LIFF ID 或權限問題)
-                else if (error.message && error.message.includes('LIFF ID')) {
+                if (error.message && error.message.includes('LIFF ID')) {
                      displayMessage = 'LIFF ID 錯誤或 LIFF 權限未開啟！';
                      detailMessage = `請檢查 LIFF ID: ${LIFF_ID} 是否與 LINE Developers 後台完全一致。`;
                 }
@@ -188,7 +197,7 @@
             }
         }
 
-        // 確保頁面 (包括 liff.js) 完全載入後才執行 runBinding
+        // 這是最簡單也最安全的做法：確保 DOM 內容載入後，立即執行綁定流程
         document.addEventListener('DOMContentLoaded', runBinding);
     </script>
 </body>
