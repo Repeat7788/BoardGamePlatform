@@ -1,72 +1,23 @@
-<!DOCTYPE html>
-<html lang="zh-Hant">
-<head>
-  <meta charset="UTF-8" />
-  <title>揪團 LINE 帳號綁定</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <!-- 可自行引入CSS框架或自訂樣式 -->
-</head>
-<body>
-
-  <div id="status">載入中，請稍候...</div>
-
-  <!-- 載入 LIFF SDK -->
-  <script src="https://static.line-scdn.net/liff/sdk/2.23.1/liff.js"></script>
-
-  <script>
-    const LIFF_ID = '2008438447-9Nv7VA8a'; // 改成你的LIFF ID
-    const WEBHOOK_URL = 'https://repeat-taxi.app.n8n.cloud/webhook/group-register'; // n8n production webhook URL
-
-    function updateStatus(message, isError = false) {
-      const el = document.getElementById('status');
-      el.textContent = message;
-      el.style.color = isError ? 'red' : 'black';
-    }
-
-    async function runBinding() {
-      try {
-        await liff.init({ liffId: LIFF_ID });
-        if (!liff.isLoggedIn()) {
-          liff.login({ redirectUri: window.location.href });
-          return;
-        }
-
-        const profile = await liff.getProfile();
-        const data = {
-          userId: profile.userId,
-          displayName: profile.displayName,
-          // 可以加入更多額外欄位如 email, course_id (需自行加入URL參數或其他方法)
-          dt: new Date().toISOString(),
-        };
-
-        updateStatus('綁定中，請稍候...');
-
-        const response = await fetch(WEBHOOK_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(data),
-        });
-
-        if (response.ok) {
-          updateStatus('綁定成功！請返回 LINE 官方帳號即可查看。');
-          setTimeout(() => liff.closeWindow(), 2000);
-        } else {
-          const text = await response.text();
-          updateStatus(`Webhook 傳輸失敗: ${response.status}. 訊息: ${text}`, true);
-        }
-      } catch (error) {
-        if(error.message.includes('liff is not defined')){
-          updateStatus('LIFF SDK 載入失敗，請檢查網路或 LIFF 程式碼引入', true);
-        } else if(error.message.includes('LIFF ID')){
-          updateStatus('LIFF ID 錯誤或權限未開啟，請檢查 LIFF ID', true);
-        } else {
-          updateStatus(`錯誤: ${error.message}`, true);
-        }
-        console.error(error);
-      }
-    }
-
-    document.addEventListener('DOMContentLoaded', runBinding);
-  </script>
-</body>
-</html>
+fetch("https://repeat-taxi.app.n8n.cloud/webhook/group-register", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({
+    userId: profile.userId,
+    displayName: profile.displayName,
+    email: params.email,
+    course_id: params.courseId,
+    dt: new Date().toISOString()
+  })
+}).then(res => {
+  if (res.ok) {
+    document.getElementById('status').innerHTML = 
+      '<div class="success">報名成功！<br>可回官方帳號輸入<br>「桌遊揪團」查看目前揪團人數</div>';
+    document.querySelector('.tips').textContent = '此視窗將自動關閉，如未自動關閉可直接手動關閉';
+    setTimeout(() => { liff.closeWindow(); }, 1800);
+  } else {
+    throw new Error('Webhook異常');
+  }
+}).catch(err => {
+  document.getElementById('status').innerHTML =
+    '<b style="color:#e02c2c">綁定失敗，請稍後再試或聯絡客服</b>';
+});
