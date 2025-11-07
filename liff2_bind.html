@@ -5,6 +5,7 @@
 1. 修正 LIFF SDK 載入時序問題 (使用 DOMContentLoaded)。
 2. 強化錯誤診斷，特別捕捉 LIFF SDK 初始化時的錯誤類型。
 3. n8n Webhook 傳輸成功後，顯示優化的成功訊息，並引導用戶回 LINE 官方帳號。
+4. 修正 liff.login() 參數，避免在外部瀏覽器中發生重導錯誤。
 -->
 <!DOCTYPE html>
 <html lang="zh-Hant">
@@ -78,7 +79,7 @@
     <script>
         // LIFF ID (請替換為您的實際 LIFF ID)
         const LIFF_ID = '2008438447-9Nv7VA8a';
-        // n8n Webhook URL (生產環境 URL) - 這裡的網址是正確的
+        // n8n Webhook URL (生產環境 URL)
         const WEBHOOK_URL = 'https://repeat-taxi.app.n8n.cloud/webhook/group-register';
 
         // 顯示狀態或錯誤訊息
@@ -133,8 +134,9 @@
                 await liff.init({ liffId: LIFF_ID });
 
                 if (!liff.isLoggedIn()) {
-                    // 2. 未登入則跳轉登入
-                    liff.login({ redirectUri: window.location.href });
+                    // 2. 未登入則跳轉登入 (移除 redirectUri，讓 LIFF 預設使用 Endpoint URL)
+                    // 這一步修正了在 Safari 中點擊 LIFF 連結時可能發生的重導錯誤。
+                    liff.login(); 
                     return;
                 }
 
