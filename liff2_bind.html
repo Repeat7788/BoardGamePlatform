@@ -1,21 +1,9 @@
-<!-- 
-檔案名稱: liff2_bind.html
-說明: 這是 LINE LIFF 綁定成功的頁面。
-功能:
-1. 初始化 LIFF SDK。
-2. 檢查登入狀態，如果未登入則導向登入。
-3. 登入後，獲取用戶資料 (userId, displayName)。
-4. 將用戶資料 POST 給 n8n Webhook。
-5. 成功後，顯示優化的成功訊息，並引導用戶回 LINE 官方帳號。
-6. 移除 liff.closeWindow() 以便用戶閱讀成功訊息。
--->
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>揪團 LINE 帳號綁定</title>
-    <!-- 引入 Tailwind CSS 確保響應式設計和美觀 -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -51,15 +39,11 @@
 </head>
 <body class="font-sans">
 
-    <!-- 主容器 -->
     <div id="app" class="w-full max-w-sm bg-white p-6 sm:p-8 rounded-xl shadow-2xl text-center transition duration-300">
         
-        <!-- 標題 -->
         <h1 class="text-3xl font-bold mb-6 text-gray-800" style="animation: fadeIn 0.5s ease-out;">揪團 LINE 帳號綁定</h1>
         
-        <!-- 狀態區塊 -->
         <div id="status-display">
-            <!-- 初始載入中訊息 -->
             <div class="text-lg text-gray-500 flex items-center justify-center space-x-2">
                 <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-line-dark" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -69,14 +53,11 @@
             </div>
         </div>
 
-        <!-- 錯誤資訊 (隱藏) -->
         <p id="error-message" class="text-red-600 font-medium mt-4 hidden"></p>
         
-        <!-- 用戶資訊 (除錯用，可隱藏) -->
         <p id="user-info" class="text-xs text-gray-400 mt-4 break-all hidden"></p>
     </div>
 
-    <!-- 引入 LIFF SDK -->
     <script src="https://static.line-scdn.net/liff/sdk/2.23.1/liff.js"></script>
     <script>
         // LIFF ID (請替換為您的實際 LIFF ID)
@@ -176,7 +157,7 @@
             } catch (error) {
                 // LIFF 或網路錯誤
                 let displayMessage = 'LIFF 啟動或登入錯誤，請檢查 LIFF ID 或網路連線。';
-                if (error.message.includes('User does not have a LINE account')) {
+                if (error.message && error.message.includes('User does not have a LINE account')) {
                     displayMessage = '您目前使用的瀏覽器非 LINE 內建，無法登入 LINE 帳號。';
                 }
                 console.error("LIFF/Binding Error:", error);
@@ -184,8 +165,9 @@
             }
         }
 
-        // 開始執行
-        runBinding();
+        // --- 修正錯誤的關鍵：確保頁面完全載入後才執行 LIFF 邏輯 ---
+        // 確保 DOMContentLoaded 事件觸發後才執行 runBinding，避免 liff is not defined 錯誤
+        document.addEventListener('DOMContentLoaded', runBinding);
     </script>
 </body>
 </html>
