@@ -2,10 +2,10 @@
 檔案名稱: liff2_bind.html
 說明: 這是 LINE LIFF 綁定成功的頁面。
 功能:
-1. 【最終修正】將 LIFF SDK 移至 <head> 並使用 async，確保在所有瀏覽器環境中盡快載入。
-2. 移除 liff.login() 中的 redirectUri 參數，避免外部瀏覽器重導錯誤。
-3. 強化錯誤診斷，捕捉 liff 變數未定義的問題，並引導用戶檢查 LINE Developers 後台。
-4. n8n Webhook 傳輸成功後，顯示優化的成功訊息。
+1. 【最終確認】後台 Endpoint URL 已確認正確。
+2. 使用 async 確保 LIFF SDK 在所有環境中盡快載入。
+3. 移除 liff.login() 中的 redirectUri 參數，依賴正確的後台設定。
+4. 強化錯誤診斷，特別檢查 n8n Webhook 傳輸失敗的情況。
 -->
 <!DOCTYPE html>
 <html lang="zh-Hant">
@@ -137,7 +137,7 @@
 
         // 執行綁定流程
         async function runBinding() {
-            // 在所有瀏覽器中，先檢查 liff 變數是否已定義 (應對外部瀏覽器載入失敗的情況)
+            // 在所有瀏覽器中，先檢查 liff 變數是否已定義
             if (typeof liff === 'undefined') {
                 updateStatus(false, 
                     'LIFF SDK 載入失敗！請檢查網路或 LIFF 程式碼引入。', 
@@ -150,7 +150,7 @@
                 await liff.init({ liffId: LIFF_ID });
 
                 if (!liff.isLoggedIn()) {
-                    // 2. 未登入則跳轉登入 (使用最簡潔的 liff.login() 依賴後台 Endpoint URL)
+                    // 2. 未登入則跳轉登入
                     liff.login(); 
                     return;
                 }
