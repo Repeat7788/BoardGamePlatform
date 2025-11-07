@@ -1,61 +1,104 @@
 <!doctype html>
 <html lang="zh-TW">
 <head>
-  <meta charset="UTF-8">
-  <title>揪團 LINE 帳號綁定</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
-  <style>
-    body { font-family:"Segoe UI", "PingFang TC", "Noto Sans", "Microsoft JhengHei", sans-serif; background:#fff; margin:0; padding:0; }
-    #result { margin: 55px auto; max-width:400px; text-align:center; font-size:1.45em; color:#21292d; }
-    h2 { margin-bottom: .8em; font-size:1.38em; }
-    #status { margin-top: 1.5em; line-height:1.7; font-size:1.1em; }
-    .success { color:#144fa6; font-weight:700;}
-    .tips { color:#555; font-size:.97em; margin-top:1em;}
-  </style>
+  <meta charset="UTF-8">
+  <title>揪團 LINE 帳號綁定</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+  <style>
+    body { font-family:"Segoe UI", "PingFang TC", "Noto Sans", "Microsoft JhengHei", sans-serif; background:#fff; margin:0; padding:0; }
+    #result { margin: 55px auto; max-width:400px; text-align:center; font-size:1.45em; color:#21292d; }
+    h2 { margin-bottom: .8em; font-size:1.38em; }
+    #status { margin-top: 1.5em; line-height:1.7; font-size:1.1em; }
+    .success { color:#144fa6; font-weight:700;}
+    .tips { color:#555; font-size:.97em; margin-top:1em;}
+  </style>
 </head>
 <body>
-  <div id="result">
-    <h2>揪團 LINE 帳號綁定</h2>
-    <div id="status">綁定中，請稍候...</div>
-    <div class="tips"></div>
-  </div>
-  <script>
-    function getParams() {
-      const url = new URL(window.location.href);
-      return {
-        courseId: url.searchParams.get('course_id') || '',
-        email: url.searchParams.get('email') || ''
-      }
-    }
-    liff.init({ liffId: "2008438447-9Nv7VA8a" }).then(() => {
-      if (!liff.isLoggedIn()) liff.login();
-      else liff.getProfile().then(profile => {
-        const params = getParams();
-        fetch("https://repeat-taxi.app.n8n.cloud/webhook/group-register", {
-          method: "POST", headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            userId: profile.userId,
-            displayName: profile.displayName,
-            email: params.email,
-            course_id: params.courseId,
-            dt: new Date().toISOString()
-          })
-        }).then(res => {
-          if (res.ok) {
-            document.getElementById('status').innerHTML =
-              '<div class="success">報名成功！<br>可回官方帳號輸入<br>「桌遊揪團」查看目前揪團人數</div>';
-            document.querySelector('.tips').textContent = '此視窗將自動關閉，如未自動關閉可直接手動關閉';
-            setTimeout(() => { liff.closeWindow(); }, 1800);
-          } else {
-            throw new Error('Webhook異常');
-          }
-        }).catch(err => {
-          document.getElementById('status').innerHTML =
-            '<b style="color:#e02c2c">綁定失敗，請稍後再試或聯絡客服</b>';
-        });
-      });
-    });
-  </script>
+  <div id="result">
+    <h2>揪團 LINE 帳號綁定</h2>
+    <div id="status">正在初始化 LIFF 服務...</div>
+    <div class="tips"></div>
+  </div>
+  <script>
+    // 1. 取得 URL 參數
+    function getParams() {
+      const url = new URL(window.location.href);
+      return {
+        courseId: url.searchParams.get('course_id') || '',
+        email: url.searchParams.get('email') || ''
+      }
+    }
+
+    // 2. LIFF 初始化流程
+    liff.init({ liffId: "2008438447-9Nv7VA8a" })
+      .then(() => {
+        // 檢查是否已登入
+        if (!liff.isLoggedIn()) {
+          // 導向登入頁面，此處會中斷程式執行並重新導向
+          document.getElementById('status').textContent = '正在導向 LINE 登入授權...';
+          // 這裡也可以選擇性地保留您的 course_id 和 email 參數
+          // liff.login() 會自動嘗試保留 URL 參數，但 LIFF 設定仍需正確
+          liff.login();
+          return; 
+        }
+
+        // --- 成功登入後 (第二次載入) 才會執行以下程式碼 ---
+        
+        document.getElementById('status').textContent = '已授權，正在傳輸資料...';
+
+        liff.getProfile()
+          .then(profile => {
+            // 獲取 Email，需要 LIFF 後台有勾選 'email' 權限
+            const decodedIdToken = liff.getDecodedIDToken();
+            const emailFromToken = decodedIdToken ? decodedIdToken.email : '';
+            
+            const params = getParams();
+            const finalEmail = emailFromToken || params.email; // 優先使用 LINE 取得的 email
+
+            // 3. 執行 Webhook 傳輸 (n8n)
+            fetch("https://repeat-taxi.app.n8n.cloud/webhook/group-register", {
+              method: "POST", headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                userId: profile.userId,
+                displayName: profile.displayName,
+                email: finalEmail,
+                course_id: params.courseId,
+                dt: new Date().toISOString()
+              })
+            })
+            .then(res => {
+              if (res.ok) {
+                document.getElementById('status').innerHTML =
+                  '<div class="success">報名成功！<br>可回官方帳號輸入<br>「桌遊揪團」查看目前揪團人數</div>';
+                document.querySelector('.tips').textContent = '此視窗將自動關閉，如未自動關閉可直接手動關閉';
+                setTimeout(() => { liff.closeWindow(); }, 1800);
+              } else {
+                // Webhook 傳輸成功，但 n8n 回傳非 200 狀態碼
+                throw new Error(`Webhook 回傳異常: ${res.status}`);
+              }
+            })
+            .catch(err => {
+              // Webhook 網路錯誤或非 200 狀態碼
+              console.error('Webhook 錯誤:', err); 
+              document.getElementById('status').innerHTML =
+                `<b style="color:#e02c2c">Webhook 傳輸失敗，請稍後再試或聯絡客服</b>`;
+            });
+          })
+          .catch(err => {
+            // getProfile() 失敗
+            console.error('取得個人資料失敗:', err);
+            document.getElementById('status').innerHTML =
+              `<b style="color:#e02c2c">取得 LINE 資訊失敗，請確認是否允許授權。</b>`;
+          });
+      })
+      .catch((err) => {
+        // 4. LIFF 初始化失敗處理 (最關鍵的錯誤處理)
+        console.error('LIFF 初始化失敗:', err);
+        document.getElementById('status').innerHTML =
+            `<b style="color:#e02c2c">LIFF 啟動錯誤，請檢查 LIFF ID 或 Endpoint URL。</b>`;
+        document.querySelector('.tips').textContent = `錯誤碼/訊息：${err.code || err.message}`;
+      });
+  </script>
 </body>
 </html>
