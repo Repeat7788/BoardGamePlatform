@@ -127,7 +127,6 @@
                 const userPayload = {
                     userId: profile.userId,
                     displayName: profile.displayName,
-                    // 為了除錯，我們也可以傳遞 token
                     idToken: liff.getIDToken(), 
                     source: 'LIFF_Bind',
                 };
@@ -141,13 +140,9 @@
 
                 // 5. 判斷 n8n 回覆狀態
                 if (fetchResponse.ok) {
-                    // 成功回覆，因為 n8n 設為 'Immediately'，所以會收到 204/200
                     updateStatus(true, '綁定成功！');
                     
-                    // 備註：我們故意不調用 liff.closeWindow()，讓用戶可以閱讀成功訊息
-                    
                 } else {
-                    // Webhook 傳輸失敗 (例如 n8n 內部錯誤或狀態碼非 2xx)
                     const errorText = await fetchResponse.text();
                     updateStatus(false, 
                         'Webhook 傳輸失敗，請稍後再試或聯絡客服。', 
@@ -155,18 +150,27 @@
                 }
 
             } catch (error) {
-                // LIFF 或網路錯誤
+                // *** 強化診斷區塊：捕捉 LIFF 初始化或登入時的錯誤 ***
                 let displayMessage = 'LIFF 啟動或登入錯誤，請檢查 LIFF ID 或網路連線。';
-                if (error.message && error.message.includes('User does not have a LINE account')) {
-                    displayMessage = '您目前使用的瀏覽器非 LINE 內建，無法登入 LINE 帳號。';
+                let detailMessage = `詳細錯誤: ${error.message}`;
+
+                // 如果錯誤是 ReferenceError 且與 liff 有關，表示 SDK 載入失敗
+                if (error.name === 'ReferenceError' && error.message.includes('liff is not defined')) {
+                    displayMessage = 'LIFF SDK 載入失敗！請檢查網路或 LIFF 程式碼引入。';
+                    detailMessage = '錯誤: liff.js 檔案可能未成功載入。請確認您的網路連線。';
+                } 
+                // 如果錯誤是來自 LIFF SDK 本身 (例如 LIFF ID 或權限問題)
+                else if (error.message && error.message.includes('LIFF ID')) {
+                     displayMessage = 'LIFF ID 錯誤或 LIFF 權限未開啟！';
+                     detailMessage = `請檢查 LIFF ID: ${LIFF_ID} 是否與 LINE Developers 後台完全一致。`;
                 }
+                
                 console.error("LIFF/Binding Error:", error);
-                updateStatus(false, displayMessage, `詳細錯誤: ${error.message}`);
+                updateStatus(false, displayMessage, detailMessage);
             }
         }
 
-        // --- 修正錯誤的關鍵：確保頁面完全載入後才執行 LIFF 邏輯 ---
-        // 確保 DOMContentLoaded 事件觸發後才執行 runBinding，避免 liff is not defined 錯誤
+        // 確保頁面 (包括 liff.js) 完全載入後才執行 runBinding
         document.addEventListener('DOMContentLoaded', runBinding);
     </script>
 </body>
