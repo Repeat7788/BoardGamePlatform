@@ -9,22 +9,20 @@
  * @param {import('@vercel/node').VercelResponse} res 
  */
 module.exports = async (req, res) => {
-    // 這裡的數字模擬了您的 Notion 資料庫中，每個 Course ID (1, 2, 3) 的報名人數
+    // 模擬 Notion 統計人數
     const mockNotionCounts = {
-        "1": 5, // 對應前端 ID '1' (11/10 場次: 假設目前有 5 人報名)
-        "2": 10, // 對應前端 ID '2' (11/12 場次: 假設目前有 10 人報名)
-        "3": 3    // 對應前端 ID '3' (11/15 場次: 假設目前有 3 人報名)
+        "1": 5,
+        "2": 10,
+        "3": 3
     };
-    
-    // 設定 Cache-Control 讓瀏覽器不要快取這個 API (強制每 10 秒去抓新數據)
+
+    // Cache 設定
     res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate'); 
     res.setHeader('Pragma', 'no-cache');
     res.setHeader('Expires', '0');
-    
-    // 回傳 JSON 格式的統計資料
-    res.status(200).json({
-        success: true,
-        timestamp: new Date().toISOString(),
-        counts: mockNotionCounts
-    });
+
+    // 回傳符合前端邏輯的 Array 格式
+    res.status(200).json(
+        Object.entries(mockNotionCounts).map(([id, attendees]) => ({ id, attendees }))
+    );
 };
