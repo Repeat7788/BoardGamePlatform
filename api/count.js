@@ -4,7 +4,7 @@ export default async function handler(req, res) {
   const mockNotionCounts = {
     "1": 5,
     "2": 10,
-    "3": 3
+    "3": 1
   };
 
   res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
