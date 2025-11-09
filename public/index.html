@@ -251,13 +251,14 @@
         // --- Core Logic: Fetch and Display ---
 
         async function fetchAttendeeCounts() {
-            console.log(`嘗試呼叫 API: ${API_BASE_URL}/api/count.js`);
+            // ⭐️ 修正三：移除 .js 副檔名，呼叫正確的 Serverless Function 路徑
+            const apiPath = `${API_BASE_URL}/api/count`; 
+            console.log(`嘗試呼叫 API: ${apiPath}`);
+            
             try {
-                // 呼叫 Vercel Serverless Function
-                const response = await fetch(`${API_BASE_URL}/api/count.js`); 
+                const response = await fetch(apiPath); 
                 
                 if (!response.ok) {
-                    // ⭐️ 修正二：若 API 回應非 200，提供詳細錯誤訊息
                     const errorText = await response.text();
                     console.error("API 請求失敗的原始回應:", errorText);
                     throw new Error(`API 請求失敗。狀態碼: ${response.status}。請檢查 Vercel 函式部署狀態。`);
