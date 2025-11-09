@@ -1,28 +1,31 @@
+// api/count.js
+
 /**
  * Vercel Serverless Function (API 路由: /api/count)
  *
- * 【重要提醒】
- * 這是為了讓前端「即時人數」功能能夠運作而建立的【模擬數據】。
- * 在真實部署中，您最終需要將此檔案替換為呼叫 Notion API 或 n8n 統計 Webhook 的實際程式碼。
- *
- * @param {import('@vercel/node').VercelRequest} req 
- * @param {import('@vercel/node').VercelResponse} res 
+ * 此範例提供前端顯示即時人數的模擬資料。
+ * 未來你可以改為連接 Notion API 或 n8n webhook，
+ * 讓它自動回傳真實人數資料。
  */
-module.exports = async (req, res) => {
-    // 模擬 Notion 統計人數
-    const mockNotionCounts = {
-        "1": 5,
-        "2": 10,
-        "3": 3
-    };
 
-    // Cache 設定
-    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate'); 
-    res.setHeader('Pragma', 'no-cache');
-    res.setHeader('Expires', '0');
+export default async function handler(req, res) {
+  // 模擬資料（暫時使用靜態數據）
+  const mockNotionCounts = {
+    "1": 5,
+    "2": 10,
+    "3": 3
+  };
 
-    // 回傳符合前端邏輯的 Array 格式
-    res.status(200).json(
-        Object.entries(mockNotionCounts).map(([id, attendees]) => ({ id, attendees }))
-    );
-};
+  // 禁止快取，確保前端每次都拿到最新
+  res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('Expires', '0');
+
+  // 回傳 JSON 格式資料給前端
+  res.status(200).json(
+    Object.entries(mockNotionCounts).map(([id, attendees]) => ({
+      id,
+      attendees
+    }))
+  );
+}
