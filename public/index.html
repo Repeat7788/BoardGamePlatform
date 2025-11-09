@@ -65,7 +65,7 @@
                 </div>
             </div>
             <p class="description text-white">
-                全球首款結合人類圖原理的互動桌遊，《未來導航》讓你透過遊戲自然理解人類圖、學會選擇、練習決策流程。邀你一起激盪體驗！
+                全球首款結合人類圖原理的互動桌遊，《未來導航》讓你透過遊戲自然理解人類圖這套全新的「做決策的工具」，透過遊戲的步驟，練習類型、策略和權威的決策流程。邀你一起參與全新體驗！
             </p>
             <p id="last-updated" class="updatetime">載入中...</p>
         </header>
@@ -191,7 +191,7 @@
           const r=await fetch(c.target,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({displayName:name,email,courseId:c.id,timeSlot:`${c.date} ${c.location}`})});
           if(!r.ok)throw new Error(`Webhook 錯誤 ${r.status}`);
           statusMessage.className='mt-4 text-center p-3 bg-green-100 text-green-700 rounded-lg';
-          statusMessage.innerHTML='✅ 登記成功！<br>請記得綁定 LINE 官方帳號接收即時通知，<br>或輸入關鍵字「桌遊揪團」查看最新人數。';
+          statusMessage.innerHTML='✅ 登記成功！<br>請記得綁定 LINE 官方帳號接收即時通知，<br>也可輸入關鍵字「桌遊揪團」查看最新人數。';
           registrationForm.classList.add('hidden');
         }catch(err){statusMessage.className='mt-4 text-center p-3 bg-red-100 text-red-700 rounded-lg';statusMessage.textContent=`❌ 登記失敗：${err.message}`;}
         finally{loadingOverlay.classList.add('hidden');statusMessage.classList.remove('hidden');fetchAttendeeCounts();}
