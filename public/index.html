@@ -29,9 +29,20 @@
         .header-content{ display:flex; align-items:center; justify-content:center; gap:2.5rem; margin-bottom:1.5rem;}
         .logo-image { width:120px; height:120px; object-fit:cover; border-radius:14px; box-shadow:0 2px 8px #0f43924d; }
         .title-section h1 { margin:0;font-size:2rem;font-weight:700;text-align:left;}
+        
+        /* ⭐️ 修正一：移除斜體，確保字體大小一致，並增加強調色 */
+        .title-section h2 { 
+            margin: 0; 
+            font-size: 2rem; /* 與 H1 相同 */
+            font-weight: 700; 
+            text-align: left;
+            color: #f8e185; /* 使用強調色，讓它更突出 */
+            line-height: 1.2; /* 確保行高一致 */
+        }
+        
         .description { margin:0 0 1rem 0; font-size:1rem; opacity:.95; max-width:600px; margin-left:auto; margin-right:auto;
             line-height:1.6; background:rgba(255,255,255,0.1); padding:1rem 1.5rem; border-radius:12px;}
-        .subtitle { margin:0; font-size:.98rem; opacity:.88; font-style:italic; text-align: center;}
+        .subtitle { margin:0; font-size:.98rem; opacity:.88; font-style:italic; text-align: center;} /* 此類別已無用，保留但不再被標題使用 */
         .updatetime{margin-top:1.2em;font-size:.98em;color:#fff;opacity:.94;font-weight:600; text-align: center;}
         .content {padding:2rem;}
         .process-section{background:#fff;border-radius:16px;padding:2rem;margin-bottom:2rem;border:2px solid #eeba2b;box-shadow:0 4px 20px #eeba2b26;}
@@ -84,7 +95,8 @@
                 >
                 <div class="title-section">
                     <h1 class="text-white">人類圖桌遊「未來導航」</h1>
-                    <p class="subtitle text-amber-300">揪團神器</p>
+                    <!-- ⭐️ 修正一：改用 h2 標籤並套用新 CSS 樣式 -->
+                    <h2 class="text-amber-300">揪團神器</h2>
                 </div>
             </div>
             
@@ -131,7 +143,6 @@
                 <div id="course-list" class="course-grid">
                     <!-- Course cards will be injected here by JavaScript -->
                     <div class="text-center p-10 text-gray-500" id="loading-message">
-                        <!-- Tailwind class for spinner is disabled, using simple text -->
                         正在載入最新的揪團人數...
                     </div>
                 </div>
@@ -240,23 +251,31 @@
         // --- Core Logic: Fetch and Display ---
 
         async function fetchAttendeeCounts() {
+            console.log(`嘗試呼叫 API: ${API_BASE_URL}/api/count.js`);
             try {
                 // 呼叫 Vercel Serverless Function
                 const response = await fetch(`${API_BASE_URL}/api/count.js`); 
+                
                 if (!response.ok) {
-                    throw new Error(`API 請求失敗，狀態碼: ${response.status}`);
+                    // ⭐️ 修正二：若 API 回應非 200，提供詳細錯誤訊息
+                    const errorText = await response.text();
+                    console.error("API 請求失敗的原始回應:", errorText);
+                    throw new Error(`API 請求失敗。狀態碼: ${response.status}。請檢查 Vercel 函式部署狀態。`);
                 }
+                
                 const counts = await response.json();
                 
                 loadingMessage.classList.add('hidden');
                 renderCourseList(counts);
                 updateLastUpdatedTime();
+                console.log("人數資料載入成功。");
 
             } catch (error) {
+                // ⭐️ 修正二：提供更明顯的錯誤提示
                 console.error("載入人數計數時發生錯誤:", error);
-                loadingMessage.textContent = `載入人數失敗：${error.message}。請稍後重試。`;
+                loadingMessage.textContent = `🚨 載入人數失敗：${error.message}。請檢查 Vercel 部署。`;
                 loadingMessage.classList.remove('hidden');
-                loadingMessage.classList.add('text-red-500');
+                loadingMessage.classList.add('text-red-600', 'font-bold');
             }
         }
 
@@ -356,7 +375,11 @@
             const course = coursesData.find(c => c.id === courseId);
             
             if (!course) {
-                alert('系統錯誤：找不到選定的課程時段。'); // 這裡使用 alert 只是為了快速除錯
+                console.error('系統錯誤：找不到選定的課程時段。');
+                // 顯示一個用戶友好的錯誤
+                statusMessage.className = 'mt-4 text-center p-3 bg-red-100 text-red-700 rounded-lg';
+                statusMessage.textContent = '❌ 系統錯誤：請重新選擇時段。';
+                statusMessage.classList.remove('hidden');
                 return;
             }
 
@@ -388,7 +411,8 @@
                     registrationForm.classList.add('hidden');
                 } else {
                     const errorText = await response.text();
-                    throw new Error(`登記失敗，伺服器回應: ${response.status} - ${errorText.substring(0, 100)}`);
+                    console.error("Webhook 提交失敗的原始回應:", errorText);
+                    throw new Error(`n8n Webhook 提交失敗，伺服器回應: ${response.status}`);
                 }
 
             } catch (error) {
