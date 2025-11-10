@@ -6,6 +6,7 @@
     <title>人類圖桌遊「未來導航」揪團神器</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
+    <script async src="https://tally.so/widgets/embed.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
     
     <style>
@@ -333,17 +334,54 @@
                 const remain=Math.max(0,c.minAttendees-n);
                 const statusText=formed?'已成團':'揪團中';
                 const reachText=full?'🎉 已滿一桌，第二桌繼續募集中！':formed?'我們成團啦！快來加入！':`還差 ${remain} 人成團`;
-                const buttonText=formed?'前往正式報名':'我要參加揪團';
-                
-                // **重要提醒：將來整合 Notion 後，請將 c.publishedUrl (假設的屬性) 放入正式報名連結的邏輯中**
-                const card=`<div class="course-card ${formed?'border-2 border-green-500':''}">
-                    <div class="status-badge ${formed?'status-confirmed':'status-pending'}">${statusText}</div>
-                    <div class="course-time"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>${c.date}</div>
-                    <p class="text-gray-500 text-sm mb-3">${c.location}</p>
-                    <div class="participant-count"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-amber-500" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/></svg>目前揪團: <span class="count-number">${n} 人</span><span class="text-sm text-gray-500 ml-2">(最低 ${c.minAttendees} 人)</span></div>
-                    <div class="text-sm font-medium ${formed?'text-green-600':'text-amber-600'} mb-4">${reachText}</div>
-                    <button data-id="${c.id}" class="register-btn ${formed?'bg-blue-500 hover:bg-blue-600':'bg-amber-500 hover:bg-amber-600'}">${buttonText}</button></div>`;
-                courseListContainer.innerHTML+=card;
+                const buttonText = formed ? '前往正式報名' : '我要參加揪團';
+
+// ✅ 只針對「已成團」的左兩張卡片（id=1 或 2），改成 Tally popup 按鈕
+let buttonHtml = '';
+if (formed && (c.id === '1' || c.id === '2')) {
+  buttonHtml = `
+    <button 
+      class="register-btn bg-blue-500 hover:bg-blue-600"
+      data-tally-open="dWqpBA"
+      data-tally-layout="modal"
+      data-tally-hide-title="1"
+      data-tally-emoji-text="🚕"
+      data-tally-emoji-animation="head-shake"
+    >
+      ${buttonText}
+    </button>`;
+} else {
+  // 其他仍保持原本邏輯
+  buttonHtml = `
+    <button 
+      data-id="${c.id}" 
+      class="register-btn ${formed ? 'bg-blue-500 hover:bg-blue-600' : 'bg-amber-500 hover:bg-amber-600'}"
+    >
+      ${buttonText}
+    </button>`;
+}
+
+const card = `
+  <div class="course-card ${formed ? 'border-2 border-green-500' : ''}">
+    <div class="status-badge ${formed ? 'status-confirmed' : 'status-pending'}">${statusText}</div>
+    <div class="course-time">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+      </svg>${c.date}
+    </div>
+    <p class="text-gray-500 text-sm mb-3">${c.location}</p>
+    <div class="participant-count">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-amber-500" viewBox="0 0 20 20" fill="currentColor">
+        <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/>
+      </svg>
+      目前揪團: <span class="count-number">${n} 人</span>
+      <span class="text-sm text-gray-500 ml-2">(最低 ${c.minAttendees} 人)</span>
+    </div>
+    <div class="text-sm font-medium ${formed ? 'text-green-600' : 'text-amber-600'} mb-4">${reachText}</div>
+    ${buttonHtml}
+  </div>`;
+courseListContainer.innerHTML += card;
+
             });
 
             // 重新綁定事件監聽器
