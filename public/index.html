@@ -31,7 +31,7 @@
         .updatetime{margin-top:1.2em;font-size:.98em;color:#fff;opacity:.94;font-weight:600; text-align: center;}
         .content {padding:2rem;}
         
-        /* 揪團流程區塊樣式 (原 code) */
+        /* 揪團流程區塊樣式 */
         .process-section{background:#fff;border-radius:16px;padding:2rem;margin-bottom:2rem;border:2px solid #eeba2b;box-shadow:0 4px 20px #eeba2b26;}
         .process-title{color:#112947;font-size:1.5rem;font-weight:700;text-align:center;margin:0 0 1.5rem 0;}
         .process-steps{display:flex;justify-content:space-between;align-items:stretch;gap:1rem;}
@@ -50,13 +50,13 @@
         .status-pending{background:#b6ccd7;color:#112947;}
         .register-btn{width:100%;padding:0.75rem;background:linear-gradient(135deg,#eeba2b 0%,#f8e185 100%);color:#112947;border:none;border-radius:8px;font-size:1rem;font-weight:600;cursor:pointer;}
         
-        /* Modal 樣式 (保持不變) */
+        /* Modal 樣式 */
         .modal-backdrop { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.6); display: none; justify-content: center; align-items: center; z-index: 9999;}
         .modal-content { background: white; padding: 2rem; border-radius: 16px; width: 90%; max-width: 400px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
             transform: scale(0.9); opacity: 0; transition: all 0.3s ease-out; position: relative;}
         .modal-content.show { transform: scale(1); opacity: 1;}
 
-        /* --- 新增區塊樣式 --- */
+        /* --- 新增/優化區塊樣式 (按鈕置底/手機優化) --- */
         .course-recom-section{padding:2rem 0; margin-top:2rem;}
         .course-recom-grid{display:flex; gap:20px; justify-content:center; flex-wrap: wrap;}
         .recom-card{
@@ -68,7 +68,7 @@
             padding:1.5rem;
             box-shadow:0 4px 10px rgba(0,0,0,0.05);
             transition:all 0.3s;
-            /* 關鍵：啟用 Flexbox 垂直佈局 */
+            /* 關鍵：啟用 Flexbox 垂直佈局，讓按鈕置底 */
             display: flex;
             flex-direction: column;
         }
@@ -80,10 +80,10 @@
         .recom-card h3{color:#0f4392;font-size:1.25rem;font-weight:700;margin-top:0;}
         .recom-card p{font-size:0.95rem;color:#333;line-height:1.5; margin-bottom: 1.5rem;}
         .recom-link{
-            width: 100%; /* 按鈕佔滿寬度 */
-            text-align: center; /* 按鈕文字置中 */
-            display:block; /* 確保佔滿寬度 */
-            margin-top:auto; /* 推到底部 */
+            width: 100%; 
+            text-align: center; 
+            display:block; 
+            margin-top:auto; 
             padding:8px 15px;
             background-color:#6393d1;
             color:#fff;
@@ -94,7 +94,7 @@
         }
         .recom-link:hover{background-color:#0f4392;}
 
-        /* --- 版權頁樣式 --- */
+        /* --- 版權頁樣式 (Footer 優化) --- */
         #footer {
             background-color: #112947;
             color: white;
@@ -106,13 +106,16 @@
             max-width: 900px;
             margin: 0 auto;
             padding: 0 20px;
+            display: flex; 
+            flex-direction: column; 
+            align-items: center;
         }
         .footer-links {
             margin-top: 10px;
             display: flex;
             justify-content: center;
-            flex-wrap: wrap; /* 手機版換行 */
-            gap: 15px 30px; /* 行內與行間距 */
+            flex-wrap: wrap; 
+            gap: 15px 30px; 
             font-size: 0.95rem;
         }
         .footer-links a {
@@ -123,16 +126,19 @@
         .footer-links a:hover {
             color: #ffc53d;
         }
+        /* 調整連結與版權聲明之間的間距 */
+        .copyright {
+            margin-top: 30px; 
+            font-size: 0.85rem; 
+            opacity: 0.8; 
+        }
 
         /* --- 手機板優化 (Media Query) --- */
         @media (max-width: 768px) {
-            /* 1. 揪團流程區塊優化 (保持不變) */
             .process-steps { flex-direction: column; align-items: center; }
             .step { width: 90%; max-width: 400px; margin-bottom: 10px; }
-            /* 2. 課程推薦區塊優化 (保持不變) */
             .course-recom-grid { flex-direction: column; align-items: center; }
             .recom-card { flex: 1 1 100%; margin-bottom: 15px; }
-            /* 3. 調整 header 標題大小 (保持不變) */
             .title-section h1 { font-size: 1.5rem; }
             .title-section h2 { font-size: 1.8rem; }
             .header-content { flex-direction: column; gap: 1rem; }
@@ -157,7 +163,7 @@
             <p class="description text-white">
                 全球首款結合人類圖原理的互動桌遊，《未來導航》讓你透過遊戲自然理解人類圖這套全新的「做決策的工具」，透過遊戲的步驟，練習類型、策略和權威的決策流程。邀你一起參與全新體驗！
             </p>
-            <p id="last-updated" class="updatetime">載入中...</p>
+         <p id="last-updated" class="updatetime">🚕 計程車導航系統更新中...</p>
         </header>
 
         <div class="content">
@@ -194,7 +200,6 @@
             
             <section id="other-courses" class="course-recom-section">
                 <h2 class="process-title text-center pb-2 mb-4">
-                    
                     🚕更多課程：人類計程車的深度導航🚕
                 </h2>
                 <div class="course-recom-grid">
@@ -210,7 +215,7 @@
                         <div class="course-recom-card-content">
                             <h3>📚 LYD 正式課程 / 讀書會</h3>
                             <p>深入理解能量中心與類型、策略、內在權威之間的關係，讓人類圖真正成為你「做決策的工具」。
-在【迴路探險隊】的讀書會中，從根源理解通道與閘門的運作模式，在個人與他人之間產生的影響，重新看懂世界運作的邏輯。</p>
+                                在【迴路探險隊】的讀書會中，從根源理解通道與閘門的運作模式，在個人與他人之間產生的影響，重新看懂世界運作的邏輯。</p>
                         </div>
                         <a href="https://humandesign-galaxy.com/services/" class="recom-link">查詢最新開課資訊</a>
                     </div>
@@ -226,30 +231,189 @@
             </section>
         </div>
     </div>
-<footer id="footer">
-    <div class="footer-content">
-        
-        <div class="footer-links">
-            <p>活動與課程邀約: <a href="mailto:repeat.taxi@gmail.com">repeat.taxi@gmail.com</a></p>
-            <p>接收即時資訊: <a href="https://line.me/R/ti/p/@818bhwdw" target="_blank">@repeat_hd_taxi</a></p>
-            <p>計程車官網: <a href="https://humandesign-galaxy.com" target="_blank">humandesign-galaxy.com</a></p>
-        </div>
 
-        <p class="copyright">Repeat的人類圖計程車 | 指路人工作室 版權所有 © 2025</p>
-        
-    </div>
-</footer>
     <div id="modal-backdrop" class="modal-backdrop">
+        <div id="modal-content" class="modal-content">
+            <h3 id="modal-title" class="text-xl font-bold text-gray-800 mb-4">參加揪團: </h3>
+            <p class="text-sm text-gray-600 mb-4">請填寫 Email (成團通知將寄至此信箱)。</p>
+            
+            <form id="registration-form" class="space-y-4">
+                <div>
+                    <label for="displayName" class="block text-sm font-medium text-gray-700">您的暱稱/姓名</label>
+                    <input type="text" id="displayName" name="displayName" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-amber-500 focus:border-amber-500" placeholder="例如：人類圖愛好者">
+                </div>
+                <div>
+                    <label for="email" class="block text-sm font-medium text-gray-700">Email (報名信箱)</label>
+                    <input type="email" id="email" name="email" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-amber-500 focus:border-amber-500" placeholder="your@email.com">
+                </div>
+                <div class="flex justify-end space-x-3 pt-2">
+                    <button type="button" id="modal-cancel-btn" class="px-4 py-2 text-gray-600 bg-gray-200 rounded-lg hover:bg-gray-300 transition duration-150">取消</button>
+                    <button type="submit" class="px-4 py-2 text-white bg-amber-500 rounded-lg hover:bg-amber-600 transition duration-150 font-semibold">確認登記</button>
+                </div>
+            </form>
+            <div id="loading-overlay" class="absolute inset-0 bg-white bg-opacity-80 flex items-center justify-center rounded-xl hidden"><p class="ml-3 text-gray-700">處理中，請稍候...</p></div>
+            <div id="status-message" class="mt-4 text-center hidden"></div>
         </div>
+    </div>
+    
+    <footer id="footer">
+        <div class="footer-content">
+            
+            <div class="footer-links">
+                <p>活動與課程邀約: <a href="mailto:repeat.taxi@gmail.com">repeat.taxi@gmail.com</a></p>
+                <p>接收即時資訊: <a href="https://line.me/R/ti/p/@818bhwdw" target="_blank">@repeat_hd_taxi</a></p>
+                <p>計程車官網: <a href="https://humandesign-galaxy.com" target="_blank">humandesign-galaxy.com</a></p>
+            </div>
+
+            <p class="copyright">Repeat的人類圖計程車 | 指路人工作室 版權所有 © 2025</p>
+            
+        </div>
+    </footer>
 
     <script>
-        // JavaScript 程式碼 (略，與前一版本完全相同)
+        // 靜態資料，等待 Notion 自動化取代
         const coursesData = [
-            // ... 靜態資料，等待 Notion 自動化取代 ...
+            { id: '1', date: '11/10 (日) | 14:00–17:00', location: '台北 | 平日下午場', minAttendees: 3, target: 'https://repeat-taxi.app.n8n.cloud/webhook/group-register' },
+            { id: '2', date: '11/12 (二) | 19:00–22:00', location: '台北 | 平日晚上場', minAttendees: 3, target: 'https://repeat-taxi.app.n8n.cloud/webhook/group-register' },
+            { id: '3', date: '11/15 (五) | 14:00–17:00', location: '台中 | 假日場', minAttendees: 3, target: 'https://repeat-taxi.app.n8n.cloud/webhook/group-register' }
         ];
-        // ... 所有函數 (fetchAttendeeCounts, renderCourseList, etc.) ...
-        // **注意：請記得將 renderCourseList 函數中的 c.publishedUrl 相關邏輯，在下一階段替換為您從 Notion API 讀取到的真實資料屬性。**
-        window.onload=()=>{fetchAttendeeCounts();setInterval(fetchAttendeeCounts,60000);}
+
+        // 元素獲取
+        const API_BASE_URL = window.location.origin;
+        let selectedCourseId = null;
+        const modalBackdrop = document.getElementById('modal-backdrop');
+        const modalContent = document.getElementById('modal-content');
+        const modalTitle = document.getElementById('modal-title');
+        const modalCancelBtn = document.getElementById('modal-cancel-btn');
+        const registrationForm = document.getElementById('registration-form');
+        const loadingOverlay = document.getElementById('loading-overlay');
+        const statusMessage = document.getElementById('status-message');
+        const courseListContainer = document.getElementById('course-list');
+        const loadingMessage = document.getElementById('loading-message');
+
+        // Modal 控制函數
+        function showModal(course){
+            selectedCourseId=course.id;
+            modalTitle.textContent=`參加揪團: ${course.date} (${course.location})`;
+            registrationForm.reset();
+            statusMessage.classList.add('hidden');
+            registrationForm.classList.remove('hidden');
+            modalBackdrop.style.display='flex';
+            setTimeout(()=>modalContent.classList.add('show'),10);
+        }
+        function hideModal(){
+            modalContent.classList.remove('show');
+            setTimeout(()=>modalBackdrop.style.display='none',300);
+        }
+
+        // 數據獲取與渲染
+        async function fetchAttendeeCounts(){
+            try{
+                // 注意：這裡假設 Vercel/伺服器上有一個 /api/count 端點，
+                // 這是您先前架構的一部分。
+                const r=await fetch(`${API_BASE_URL}/api/count`);
+                if(!r.ok)throw new Error(`API ${r.status}`);
+                const d=await r.json();
+                loadingMessage.classList.add('hidden');
+                renderCourseList(d);
+                updateLastUpdatedTime();
+            }catch(e){
+                loadingMessage.textContent=`🚨 無法載入人數：${e.message}。請檢查後端 API 服務是否正常。`;
+                loadingMessage.classList.remove('hidden');
+            }
+        }
+
+        function renderCourseList(counts){
+            courseListContainer.innerHTML='';
+            coursesData.forEach(c=>{
+                const data=counts.find(x=>String(x.id)===c.id);
+                const n=data?data.attendees:0;
+                const formed=n>=c.minAttendees;
+                const full=n>=6;
+                const remain=Math.max(0,c.minAttendees-n);
+                const statusText=formed?'已成團':'揪團中';
+                const reachText=full?'🎉 已滿一桌，第二桌繼續募集中！':formed?'我們成團啦！快來加入！':`還差 ${remain} 人成團`;
+                const buttonText=formed?'前往正式報名':'我要參加揪團';
+                
+                // **重要提醒：將來整合 Notion 後，請將 c.publishedUrl (假設的屬性) 放入正式報名連結的邏輯中**
+                const card=`<div class="course-card ${formed?'border-2 border-green-500':''}">
+                    <div class="status-badge ${formed?'status-confirmed':'status-pending'}">${statusText}</div>
+                    <div class="course-time"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>${c.date}</div>
+                    <p class="text-gray-500 text-sm mb-3">${c.location}</p>
+                    <div class="participant-count"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-amber-500" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/></svg>目前揪團: <span class="count-number">${n} 人</span><span class="text-sm text-gray-500 ml-2">(最低 ${c.minAttendees} 人)</span></div>
+                    <div class="text-sm font-medium ${formed?'text-green-600':'text-amber-600'} mb-4">${reachText}</div>
+                    <button data-id="${c.id}" class="register-btn ${formed?'bg-blue-500 hover:bg-blue-600':'bg-amber-500 hover:bg-amber-600'}">${buttonText}</button></div>`;
+                courseListContainer.innerHTML+=card;
+            });
+
+            // 重新綁定事件監聽器
+            document.querySelectorAll('.register-btn').forEach(b=>{
+                b.addEventListener('click',e=>{
+                    const id=e.currentTarget.dataset.id;
+                    const c=coursesData.find(x=>x.id===id);
+                    if(!c)return;
+                    
+                    // 正式報名連結邏輯 (使用 Tally 連結)
+                    if(b.textContent.includes('正式')){
+                        // **注意：請將這裡的 Tally 連結替換為您的實際連結**
+                        const tally='https://tally.so/r/xxxxx'; 
+                        window.open(`${tally}?courseId=${c.id}&courseTitle=${encodeURIComponent(c.date)}`,'_blank');
+                    }
+                    else {
+                        showModal(c);
+                    }
+                });
+            });
+        }
+
+        // 更新時間戳
+        function updateLastUpdatedTime(){
+            const n=new Date();
+            document.getElementById('last-updated').textContent=`最後更新：${n.toLocaleDateString('zh-TW',{month:'numeric',day:'numeric'})} ${n.toLocaleTimeString('zh-TW',{hour:'2-digit',minute:'2-digit'})}`;
+        }
+
+        // Modal 關閉事件
+        modalCancelBtn.addEventListener('click',hideModal);
+        modalBackdrop.addEventListener('click',e=>{if(e.target===modalBackdrop)hideModal();});
+
+        // 表單提交事件 (發送 Webhook 到 n8n)
+        registrationForm.addEventListener('submit',async e=>{
+            e.preventDefault();
+            const name=document.getElementById('displayName').value;
+            const email=document.getElementById('email').value;
+            const c=coursesData.find(x=>x.id===selectedCourseId);
+            if(!c)return;
+            
+            loadingOverlay.classList.remove('hidden');
+            try{
+                // 注意：這裡使用您在 coursesData 中提供的 n8n Webhook URL
+                const r=await fetch(c.target,{
+                    method:'POST',
+                    headers:{'Content-Type':'application/json'},
+                    body:JSON.stringify({displayName:name,email,courseId:c.id,timeSlot:`${c.date} ${c.location}`})
+                });
+                if(!r.ok)throw new Error(`Webhook 錯誤 ${r.status}`);
+                
+                statusMessage.className='mt-4 text-center p-3 bg-green-100 text-green-700 rounded-lg';
+                statusMessage.innerHTML='✅ 登記成功！<br>請記得綁定 LINE 官方帳號接收即時通知，<br>也可輸入關鍵字「桌遊揪團」查看最新人數。';
+                registrationForm.classList.add('hidden');
+            }catch(err){
+                statusMessage.className='mt-4 text-center p-3 bg-red-100 text-red-700 rounded-lg';
+                statusMessage.textContent=`❌ 登記失敗：${err.message}`;
+            }
+            finally{
+                loadingOverlay.classList.add('hidden');
+                statusMessage.classList.remove('hidden');
+                // 重新載入人數，即時更新網頁狀態
+                fetchAttendeeCounts();
+            }
+        });
+
+        // 頁面載入時執行，並每隔 60 秒更新一次
+        window.onload=()=>{
+            fetchAttendeeCounts();
+            setInterval(fetchAttendeeCounts,60000);
+        }
     </script>
 </body>
 </html>
