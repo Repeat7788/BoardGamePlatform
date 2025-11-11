@@ -369,7 +369,9 @@ const card = `
         <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
       </svg>${c.date}
     </div>
-    <p class="text-gray-500 text-sm mb-3">${c.location}</p>
+    <p class="text-gray-500 text-sm mb-3">
+  🚖 ${c.location} 🚀 帶領人: <span class="font-semibold">${c.leader}</span> 💰 ${c.fee}
+</p>
     <div class="participant-count">
       <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-amber-500" viewBox="0 0 20 20" fill="currentColor">
         <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/>
