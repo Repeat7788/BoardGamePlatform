@@ -271,189 +271,156 @@
         </div>
     </footer>
 
-    <script>
-        // 靜態資料，等待 Notion 自動化取代
-        const coursesData = [
-            { id: '1', date: '11/10 (日) | 14:00–17:00', location: '台北 | 平日下午場', minAttendees: 3, target: 'https://repeat-taxi.app.n8n.cloud/webhook/group-register' },
-            { id: '2', date: '11/12 (二) | 19:00–22:00', location: '台北 | 平日晚上場', minAttendees: 3, target: 'https://repeat-taxi.app.n8n.cloud/webhook/group-register' },
-            { id: '3', date: '11/15 (五) | 14:00–17:00', location: '台中 | 假日場', minAttendees: 3, target: 'https://repeat-taxi.app.n8n.cloud/webhook/group-register' }
-        ];
+ <script>
+const API_BASE_URL = window.location.origin;
+let selectedCourseId = null;
+const modalBackdrop = document.getElementById('modal-backdrop');
+const modalContent = document.getElementById('modal-content');
+const modalTitle = document.getElementById('modal-title');
+const modalCancelBtn = document.getElementById('modal-cancel-btn');
+const registrationForm = document.getElementById('registration-form');
+const loadingOverlay = document.getElementById('loading-overlay');
+const statusMessage = document.getElementById('status-message');
+const courseListContainer = document.getElementById('course-list');
+const loadingMessage = document.getElementById('loading-message');
 
-        // 元素獲取
-        const API_BASE_URL = window.location.origin;
-        let selectedCourseId = null;
-        const modalBackdrop = document.getElementById('modal-backdrop');
-        const modalContent = document.getElementById('modal-content');
-        const modalTitle = document.getElementById('modal-title');
-        const modalCancelBtn = document.getElementById('modal-cancel-btn');
-        const registrationForm = document.getElementById('registration-form');
-        const loadingOverlay = document.getElementById('loading-overlay');
-        const statusMessage = document.getElementById('status-message');
-        const courseListContainer = document.getElementById('course-list');
-        const loadingMessage = document.getElementById('loading-message');
-
-        // Modal 控制函數
-        function showModal(course){
-            selectedCourseId=course.id;
-            modalTitle.textContent=`參加揪團: ${course.date} (${course.location})`;
-            registrationForm.reset();
-            statusMessage.classList.add('hidden');
-            registrationForm.classList.remove('hidden');
-            modalBackdrop.style.display='flex';
-            setTimeout(()=>modalContent.classList.add('show'),10);
-        }
-        function hideModal(){
-            modalContent.classList.remove('show');
-            setTimeout(()=>modalBackdrop.style.display='none',300);
-        }
-
-        // 數據獲取與渲染
-        async function fetchAttendeeCounts(){
-            try{
-                // 注意：這裡假設 Vercel/伺服器上有一個 /api/count 端點，
-                // 這是您先前架構的一部分。
-                const r=await fetch(`${API_BASE_URL}/api/count`);
-                if(!r.ok)throw new Error(`API ${r.status}`);
-                const d=await r.json();
-                loadingMessage.classList.add('hidden');
-                renderCourseList(d);
-                updateLastUpdatedTime();
-            }catch(e){
-                loadingMessage.textContent=`🚨 無法載入人數：${e.message}。請檢查後端 API 服務是否正常。`;
-                loadingMessage.classList.remove('hidden');
-            }
-        }
-
-        function renderCourseList(counts){
-            courseListContainer.innerHTML='';
-            coursesData.forEach(c=>{
-                const data=counts.find(x=>String(x.id)===c.id);
-                const n=data?data.attendees:0;
-                const formed=n>=c.minAttendees;
-                const full=n>=6;
-                const remain=Math.max(0,c.minAttendees-n);
-                const statusText=formed?'已成團':'揪團中';
-                const reachText=full?'🎉 已滿一桌，第二桌繼續募集中！':formed?'我們成團啦！快來加入！':`還差 ${remain} 人成團`;
-                const buttonText = formed ? '前往正式報名' : '我要參加揪團';
-
-// ✅ 只針對「已成團」的左兩張卡片（id=1 或 2），改成 Tally popup 按鈕
-let buttonHtml = '';
-if (formed && (c.id === '1' || c.id === '2')) {
-  buttonHtml = `
-    <button 
-      class="register-btn bg-blue-500 hover:bg-blue-600"
-      data-tally-open="dWqpBA"
-      data-tally-layout="modal"
-      data-tally-hide-title="1"
-      data-tally-emoji-text="🚕"
-      data-tally-emoji-animation="head-shake"
-    >
-      ${buttonText}
-    </button>`;
-} else {
-  // 其他仍保持原本邏輯
-  buttonHtml = `
-    <button 
-      data-id="${c.id}" 
-      class="register-btn ${formed ? 'bg-blue-500 hover:bg-blue-600' : 'bg-amber-500 hover:bg-amber-600'}"
-    >
-      ${buttonText}
-    </button>`;
+// Modal 控制
+function showModal(course){
+  selectedCourseId=course.id;
+  modalTitle.textContent=`參加揪團: ${course.date} (${course.location})`;
+  registrationForm.reset();
+  statusMessage.classList.add('hidden');
+  registrationForm.classList.remove('hidden');
+  modalBackdrop.style.display='flex';
+  setTimeout(()=>modalContent.classList.add('show'),10);
+}
+function hideModal(){
+  modalContent.classList.remove('show');
+  setTimeout(()=>modalBackdrop.style.display='none',300);
 }
 
-const card = `
-  <div class="course-card ${formed ? 'border-2 border-green-500' : ''}">
-    <div class="status-badge ${formed ? 'status-confirmed' : 'status-pending'}">${statusText}</div>
-    <div class="course-time">
-      <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-      </svg>${c.date}
-    </div>
-    <p class="text-gray-500 text-sm mb-3">
-  🚖 ${c.location} 🚀 帶領人: <span class="font-semibold">${c.leader}</span> 💰 ${c.fee}
-</p>
-    <div class="participant-count">
-      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-amber-500" viewBox="0 0 20 20" fill="currentColor">
-        <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/>
-      </svg>
-      目前揪團: <span class="count-number">${n} 人</span>
-      <span class="text-sm text-gray-500 ml-2">(最低 ${c.minAttendees} 人)</span>
-    </div>
-    <div class="text-sm font-medium ${formed ? 'text-green-600' : 'text-amber-600'} mb-4">${reachText}</div>
-    ${buttonHtml}
-  </div>`;
-courseListContainer.innerHTML += card;
+// ✅ Step 1: 從 n8n 抓資料（或使用假資料）
+async function fetchCourseData() {
+  try {
+    const res = await fetch('https://repeat-taxi.app.n8n.cloud/webhook/courses-json');
+    if (!res.ok) throw new Error('資料抓取失敗');
+    const data = await res.json();
+    console.log('✅ 從 n8n 成功抓取資料：', data);
+    return data;
+  } catch (e) {
+    console.warn('⚠️ 無法從 n8n 抓資料，改用本地假資料：', e.message);
+    return [
+      { id: '1', date: '11/10 (日) | 14:00–17:00', location: '台北 | 平日下午場', leader: 'Repeat🚀', fee: '800', minAttendees: 3, currentAttendees: 1, isFormed: false, tallyId: '' },
+      { id: '2', date: '11/12 (二) | 19:00–22:00', location: '台北 | 平日晚上場', leader: 'Repeat🚀', fee: '800', minAttendees: 3, currentAttendees: 2, isFormed: false, tallyId: '' },
+      { id: '3', date: '11/15 (五) | 14:00–17:00', location: '台中 | 假日場', leader: 'Repeat🚀', fee: '800', minAttendees: 3, currentAttendees: 1, isFormed: false, tallyId: '' }
+    ];
+  }
+}
 
-            });
+// ✅ Step 2: 渲染卡片
+function renderCourseList(list){
+  courseListContainer.innerHTML='';
+  list.forEach(c=>{
+    const n = c.currentAttendees ?? 0;
+    const remain = Math.max(0, c.minAttendees - n);
+    const formed = c.isFormed?.includes('成團') || false;
+    const statusText = formed ? '已成團' : '揪團中';
+    const reachText = formed ? '我們成團啦！快來加入！' : `還差 ${remain} 人成團`;
 
-            // 重新綁定事件監聽器
-            document.querySelectorAll('.register-btn').forEach(b=>{
-                b.addEventListener('click',e=>{
-                    const id=e.currentTarget.dataset.id;
-                    const c=coursesData.find(x=>x.id===id);
-                    if(!c)return;
-                    
-                    // 正式報名連結邏輯 (使用 Tally 連結)
-                    if(b.textContent.includes('正式')){
-                        // **注意：請將這裡的 Tally 連結替換為您的實際連結**
-                        const tally='https://tally.so/r/xxxxx'; 
-                        window.open(`${tally}?courseId=${c.id}&courseTitle=${encodeURIComponent(c.date)}`,'_blank');
-                    }
-                    else {
-                        showModal(c);
-                    }
-                });
-            });
-        }
+    const buttonHtml = formed
+      ? `<button class="register-btn bg-blue-500 hover:bg-blue-600"
+          data-tally-open="${c.tallyId || 'dWqpBA'}"
+          data-tally-layout="modal"
+          data-tally-hide-title="1"
+          data-tally-emoji-text="🚕"
+          data-tally-emoji-animation="head-shake">
+          前往正式報名
+        </button>`
+      : `<button data-id="${c.id}" class="register-btn bg-amber-500 hover:bg-amber-600">我要參加揪團</button>`;
 
-        // 更新時間戳
-        function updateLastUpdatedTime(){
-            const n=new Date();
-            document.getElementById('last-updated').textContent=`最後更新：${n.toLocaleDateString('zh-TW',{month:'numeric',day:'numeric'})} ${n.toLocaleTimeString('zh-TW',{hour:'2-digit',minute:'2-digit'})}`;
-        }
+    const card = `
+      <div class="course-card ${formed ? 'border-2 border-green-500' : ''}">
+        <div class="status-badge ${formed ? 'status-confirmed' : 'status-pending'}">${statusText}</div>
+        <div class="course-time">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>${c.date}
+        </div>
+        <p class="text-gray-500 text-sm mb-3">
+          🚖 ${c.location} 🚀 帶領人: <span class="font-semibold">${c.leader || '未設定'}</span> 💰 ${c.fee || 'TBD'}
+        </p>
+        <div class="participant-count">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-amber-500" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/>
+          </svg>
+          目前揪團: <span class="count-number">${n} 人</span>
+          <span class="text-sm text-gray-500 ml-2">(最低 ${c.minAttendees} 人)</span>
+        </div>
+        <div class="text-sm font-medium ${formed ? 'text-green-600' : 'text-amber-600'} mb-4">${reachText}</div>
+        ${buttonHtml}
+      </div>`;
+    courseListContainer.innerHTML += card;
+  });
 
-        // Modal 關閉事件
-        modalCancelBtn.addEventListener('click',hideModal);
-        modalBackdrop.addEventListener('click',e=>{if(e.target===modalBackdrop)hideModal();});
+  // 綁定事件
+  document.querySelectorAll('.register-btn').forEach(b=>{
+    b.addEventListener('click',e=>{
+      const id = e.currentTarget.dataset.id;
+      const c = list.find(x => x.id === id);
+      if(!c) return;
+      if(b.textContent.includes('揪團')) showModal(c);
+    });
+  });
+}
 
-        // 表單提交事件 (發送 Webhook 到 n8n)
-        registrationForm.addEventListener('submit',async e=>{
-            e.preventDefault();
-            const name=document.getElementById('displayName').value;
-            const email=document.getElementById('email').value;
-            const c=coursesData.find(x=>x.id===selectedCourseId);
-            if(!c)return;
-            
-            loadingOverlay.classList.remove('hidden');
-            try{
-                // 注意：這裡使用您在 coursesData 中提供的 n8n Webhook URL
-                const r=await fetch(c.target,{
-                    method:'POST',
-                    headers:{'Content-Type':'application/json'},
-                    body:JSON.stringify({displayName:name,email,courseId:c.id,timeSlot:`${c.date} ${c.location}`})
-                });
-                if(!r.ok)throw new Error(`Webhook 錯誤 ${r.status}`);
-                
-                statusMessage.className='mt-4 text-center p-3 bg-green-100 text-green-700 rounded-lg';
-                statusMessage.innerHTML='✅ 登記成功！<br>請記得綁定 LINE 官方帳號接收即時通知，<br>也可輸入關鍵字「桌遊揪團」查看最新人數。';
-                registrationForm.classList.add('hidden');
-            }catch(err){
-                statusMessage.className='mt-4 text-center p-3 bg-red-100 text-red-700 rounded-lg';
-                statusMessage.textContent=`❌ 登記失敗：${err.message}`;
-            }
-            finally{
-                loadingOverlay.classList.add('hidden');
-                statusMessage.classList.remove('hidden');
-                // 重新載入人數，即時更新網頁狀態
-                fetchAttendeeCounts();
-            }
-        });
+// ✅ Step 3: 更新時間戳
+function updateLastUpdatedTime(){
+  const n=new Date();
+  document.getElementById('last-updated').textContent=`最後更新：${n.toLocaleDateString('zh-TW',{month:'numeric',day:'numeric'})} ${n.toLocaleTimeString('zh-TW',{hour:'2-digit',minute:'2-digit'})}`;
+}
 
-        // 頁面載入時執行，並每隔 60 秒更新一次
-        window.onload=()=>{
-            fetchAttendeeCounts();
-            setInterval(fetchAttendeeCounts,60000);
-        }
-    </script>
+// Modal 關閉
+modalCancelBtn.addEventListener('click',hideModal);
+modalBackdrop.addEventListener('click',e=>{if(e.target===modalBackdrop)hideModal();});
+
+// 表單提交（n8n Webhook）
+registrationForm.addEventListener('submit',async e=>{
+  e.preventDefault();
+  const name=document.getElementById('displayName').value;
+  const email=document.getElementById('email').value;
+  const c=selectedCourseId ? (await fetchCourseData()).find(x=>x.id===selectedCourseId) : null;
+  if(!c)return;
+
+  loadingOverlay.classList.remove('hidden');
+  try{
+    const r=await fetch('https://repeat-taxi.app.n8n.cloud/webhook/group-register',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({displayName:name,email,courseId:c.id,timeSlot:`${c.date} ${c.location}`})
+    });
+    if(!r.ok)throw new Error(`Webhook 錯誤 ${r.status}`);
+    statusMessage.className='mt-4 text-center p-3 bg-green-100 text-green-700 rounded-lg';
+    statusMessage.innerHTML='✅ 登記成功！<br>請記得綁定 LINE 官方帳號接收即時通知。';
+    registrationForm.classList.add('hidden');
+  }catch(err){
+    statusMessage.className='mt-4 text-center p-3 bg-red-100 text-red-700 rounded-lg';
+    statusMessage.textContent=`❌ 登記失敗：${err.message}`;
+  }
+  finally{
+    loadingOverlay.classList.add('hidden');
+    statusMessage.classList.remove('hidden');
+    updateLastUpdatedTime();
+  }
+});
+
+// ✅ Step 4: 初始化頁面
+window.onload = async ()=>{
+  const data = await fetchCourseData();
+  renderCourseList(data);
+  updateLastUpdatedTime();
+  setInterval(async ()=>{ renderCourseList(await fetchCourseData()); updateLastUpdatedTime(); },60000);
+};
+</script>
+
 </body>
 </html>
