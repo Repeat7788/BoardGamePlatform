@@ -410,6 +410,8 @@ registrationForm.addEventListener('submit',async e=>{
     loadingOverlay.classList.add('hidden');
     statusMessage.classList.remove('hidden');
     updateLastUpdatedTime();
+    const data = await fetchCourseData();
+    renderCourseList(data);
   }
 });
 
