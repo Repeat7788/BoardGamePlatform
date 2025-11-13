@@ -299,16 +299,18 @@ function hideModal(){
   setTimeout(()=>modalBackdrop.style.display='none',300);
 }
 
-// ✅ Step 1: 從 n8n 抓資料（或使用假資料）
+// ✅ Step 1: 從 Vercel API 取得資料（含本地假資料 fallback）
 async function fetchCourseData() {
   try {
-    const res = await fetch('https://repeat-taxi.app.n8n.cloud/webhook/courses-json');
+    const res = await fetch('/api/count', { cache: "no-store" });
     if (!res.ok) throw new Error('資料抓取失敗');
-    const res = await fetch('/api/count');
-    console.log('✅ 從 n8n 成功抓取資料：', data);
+    const data = await res.json();
+    console.log('✅ 從 Vercel API 成功抓取資料：', data);
     return data;
   } catch (e) {
-    console.warn('⚠️ 無法從 n8n 抓資料，改用本地假資料：', e.message);
+    console.warn('⚠️ 無法從 API 抓資料，改用本地假資料：', e.message);
+
+    // 🔥 保留假資料（避免整個頁面掛掉）
     return [
       { id: '1', date: '11/10 (日) | 14:00–17:00', location: '台北 | 平日下午場', leader: 'Repeat🚀', fee: '800', minAttendees: 3, currentAttendees: 1, isFormed: false, tallyId: '' },
       { id: '2', date: '11/12 (二) | 19:00–22:00', location: '台北 | 平日晚上場', leader: 'Repeat🚀', fee: '800', minAttendees: 3, currentAttendees: 2, isFormed: false, tallyId: '' },
