@@ -241,7 +241,7 @@
             <form id="registration-form" class="space-y-4">
                 <div>
                     <label for="displayName" class="block text-sm font-medium text-gray-700">您的暱稱/姓名</label>
-                    <input type="text" id="displayName" name="displayName" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-amber-500 focus:border-amber-500" placeholder="例如：人類圖愛好者">
+                    <input type="text" id="displayName" name="displayName" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-amber-500 focus:border-amber-500" placeholder="例如：貓咪也愛人類圖">
                 </div>
                 <div>
                     <label for="email" class="block text-sm font-medium text-gray-700">Email (報名信箱)</label>
@@ -323,10 +323,20 @@ function renderCourseList(list){
   list.forEach(c=>{
     const n = c.currentAttendees ?? 0;
     const remain = Math.max(0, c.minAttendees - n);
-    const formed = c.isFormed?.includes('成團') || false;
-    const statusText = formed ? '已成團' : '揪團中';
-    const reachText = formed ? '我們成團啦！快來加入！' : `還差 ${remain} 人成團`;
 
+    // 🔥 B 方案核心：人數是否達標（自動成團）
+    const isCountMet = n >= c.minAttendees;
+
+    // 🔥 是否成團 = 人數達標 OR Notion 手動設定為成團
+    const formed = isCountMet || (c.isFormed?.includes('成團') || false);
+
+    // 顯示用文字
+    const statusText = formed ? '已成團' : '揪團中';
+    const reachText = isCountMet
+      ? '我們成團啦！快來加入！'
+      : `還差 ${remain} 人成團`;
+
+    // 按鈕切換
     const buttonHtml = formed
       ? `<button class="register-btn bg-blue-500 hover:bg-blue-600"
           data-tally-open="${c.tallyId || 'dWqpBA'}"
@@ -338,6 +348,7 @@ function renderCourseList(list){
         </button>`
       : `<button data-id="${c.id}" class="register-btn bg-amber-500 hover:bg-amber-600">我要參加揪團</button>`;
 
+    // 卡片 HTML
     const card = `
       <div class="course-card ${formed ? 'border-2 border-green-500' : ''}">
         <div class="status-badge ${formed ? 'status-confirmed' : 'status-pending'}">${statusText}</div>
@@ -357,12 +368,18 @@ function renderCourseList(list){
           <span class="text-sm text-gray-500 ml-2">(最低 ${c.minAttendees} 人)</span>
         </div>
         <div class="text-sm font-medium ${formed ? 'text-green-600' : 'text-amber-600'} mb-4">${reachText}</div>
+
         ${buttonHtml}
+
+        <div class="text-xs text-gray-400 mt-2 text-right">
+          （每分鐘自動更新）
+        </div>
       </div>`;
+
     courseListContainer.innerHTML += card;
   });
 
-  // 綁定事件
+  // 綁定事件（揪團用）
   document.querySelectorAll('.register-btn').forEach(b=>{
     b.addEventListener('click',e=>{
       const id = e.currentTarget.dataset.id;
@@ -376,7 +393,9 @@ function renderCourseList(list){
 // ✅ Step 3: 更新時間戳
 function updateLastUpdatedTime(){
   const n=new Date();
-  document.getElementById('last-updated').textContent=`最後更新：${n.toLocaleDateString('zh-TW',{month:'numeric',day:'numeric'})} ${n.toLocaleTimeString('zh-TW',{hour:'2-digit',minute:'2-digit'})}`;
+  document.getElementById('last-updated').innerHTML =
+    `最後更新：${n.toLocaleDateString('zh-TW',{month:'numeric',day:'numeric'})} ${n.toLocaleTimeString('zh-TW',{hour:'2-digit',minute:'2-digit'})}
+     <span class="text-gray-400 text-sm ml-2">(每分鐘自動更新)</span>`;
 }
 
 // Modal 關閉
