@@ -437,12 +437,12 @@ registrationForm.addEventListener('submit',async e=>{
 });
 
 // ✅ Step 4: 初始化頁面
+// 移除 setInterval，只保留頁面載入和報名submit後會fetch一次
 window.onload = async ()=>{
   const data = await fetchCourseData();
   renderCourseList(data);
   updateLastUpdatedTime();
-  setInterval(async ()=>{ renderCourseList(await fetchCourseData()); updateLastUpdatedTime(); },60000);
-};
+}
 </script>
 
 </body>
