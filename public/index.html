@@ -304,7 +304,7 @@ async function fetchCourseData() {
   try {
     const res = await fetch('https://repeat-taxi.app.n8n.cloud/webhook/courses-json');
     if (!res.ok) throw new Error('資料抓取失敗');
-    const data = await res.json();
+    const res = await fetch('/api/count');
     console.log('✅ 從 n8n 成功抓取資料：', data);
     return data;
   } catch (e) {
