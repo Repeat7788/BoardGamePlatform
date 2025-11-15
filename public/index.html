@@ -310,9 +310,9 @@ async function fetchCourseData() {
     console.log('✅ 從 Vercel API 成功抓取資料：', data);
     return data;
   } 
-    catch (e) {
+catch (e) {
   console.warn('⚠️ 無法從 API 抓資料：', e.message);
-  return []; // 不回傳假資料
+  return lastKnownData ?? [];  // 若沒有 lastKnownData 就回空，但至少不會第一次就空
 }
 
 }
