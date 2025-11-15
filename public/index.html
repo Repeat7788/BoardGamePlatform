@@ -285,7 +285,6 @@ const courseListContainer = document.getElementById('course-list');
 const loadingMessage = document.getElementById('loading-message');
 
 // Modal 控制
-let currentCourse = null;
 function showModal(course) {
   currentCourse = course; // 直接保存整包 JSON
   modalTitle.textContent = `參加揪團: ${course.date} (${course.location})`;
@@ -310,9 +309,23 @@ async function fetchCourseData() {
     console.log('✅ 從 Vercel API 成功抓取資料：', data);
     return data;
   } 
-catch (e) {
-  console.warn('⚠️ 無法從 API 抓資料：', e.message);
-  return lastKnownData ?? [];  // 若沒有 lastKnownData 就回空，但至少不會第一次就空
+let lastKnownData = null; // 保存最近一次成功資料
+
+async function fetchCourseData() {
+  try {
+    const res = await fetch('/api/count', { cache: "no-store" });
+    if (!res.ok) throw new Error('資料抓取失敗');
+    const data = await res.json();
+    
+    lastKnownData = data;    // 成功取到資料，更新備援
+    console.log('✅ 上次成功抓取資料更新', data);
+    
+    return data;
+  } catch (e) {
+    console.warn('⚠️ 無法從 API 抓資料：', e.message);
+    // 有備援資料使用備援，沒有就回空陣列
+    return lastKnownData ?? [];
+  }
 }
 
 }
