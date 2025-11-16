@@ -11,9 +11,17 @@ export default async function handler(req, res) {
       throw new Error('n8n webhook 錯誤或資料無法取得');
     }
 
-    const data = await response.json();
+    let data = await response.json();
 
-    // ⭐★ 直接回傳完整資料（不要改格式！）
+    // ⭐★ 防呆處理：確保一定回傳陣列
+    if (!Array.isArray(data)) {
+      if (data && typeof data === 'object' && Object.keys(data).length > 0) {
+        data = [data];  // 將單一物件包成陣列
+      } else {
+        data = [];      // 空值的話回傳空陣列
+      }
+    }
+
     res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
     res.setHeader('Pragma', 'no-cache');
     res.setHeader('Expires', '0');
