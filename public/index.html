@@ -336,36 +336,46 @@ function hideModal() {
 
     // ✅ Step 1: 從 Vercel API 取得資料（含本地假資料 fallback）
     async function fetchCourseData() {
-        // loadingMessage.style.display = 'block'; // 讓初始化頁面負責顯示/隱藏
+        let dataToReturn = []; // 預設回傳空陣列
+        
         try {
             const res = await fetch('/api/count', { cache: "no-store" });
-            if (!res.ok) throw new Error('資料抓取失敗');
+            if (!res.ok) throw new Error('API 回傳狀態碼錯誤');
+            
             const data = await res.json();
             
             // ⚡️ 修正 1-A: 清理 n8n 數據結構 [ {json: c} ] => [ c ]
-            const cleanedData = Array.isArray(data) ? data.map(item => item.json || item) : [];
-            currentCourseList = cleanedData; // ⚡️ 修正 1-B: 更新課程列表，供 Modal 事件使用
+            // 由於您的 API 已經回傳乾淨的 JSON [c1, c2]，這裡可能只需要簡單判斷是否為陣列
+            dataToReturn = Array.isArray(data) ? data.map(item => item.json || item) : [];
             
-            console.log('✅ 從 Vercel API 成功抓取資料：', cleanedData);
-            return cleanedData; // 傳出乾淨的課程陣列
+            console.log('✅ 從 Vercel API 成功抓取資料：', dataToReturn);
         } catch (e) {
             console.warn('⚠️ 無法從 API 抓資料，改用本地假資料：', e.message);
-            // 🔥 使用假資料 (這裡不需要清理，因為是手動定義的乾淨 JSON)
-            // 由於人數/狀態問題已在 n8n Code 節點修正，假資料中的 isFormed 應該用字串
-            currentCourseList = [      
+            // 🔥 錯誤時使用假資料 (確保是乾淨的 JSON 陣列)
+            dataToReturn = [      
                 { id: '1', date: '11/10 (日) | 14:00–17:00', location: '台北 | 平日下午場', leader: 'Repeat🚀', fee: '800', minAttendees: 3, currentAttendees: 1, isFormed: '揪團中', tallyId: '' },
                 { id: '2', date: '11/12 (二) | 19:00–22:00', location: '台北 | 平日晚上場', leader: 'Repeat🚀', fee: '800', minAttendees: 3, currentAttendees: 2, isFormed: '揪團中', tallyId: '' },
                 { id: '3', date: '11/15 (五) | 14:00–17:00', location: '台中 | 假日場', leader: 'Repeat🚀', fee: '800', minAttendees: 3, currentAttendees: 3, isFormed: '已成團', tallyId: 'dWqpBA' }
             ];
-            return currentCourseList;
         } 
         finally {
              loadingMessage.style.display = 'none'; // 載入結束，隱藏訊息
         }
+        
+        // ⚡️ 關鍵修正: 確保不論成功或失敗，都回傳 dataToReturn 陣列
+        currentCourseList = dataToReturn; 
+        return dataToReturn; 
     }
 
     // ✅ Step 2: 渲染卡片 (優化 `formed` 邏輯和按鈕綁定)
     function renderCourseList(list) {
+        // 🚨 預防性檢查：如果傳進來的 list 不是陣列，立即停止。
+        if (!Array.isArray(list)) {
+            console.error("❌ 渲染失敗：課程列表數據無效，不是陣列。", list);
+            courseListContainer.innerHTML = '<div>無法載入課程資訊，請稍後再試或聯繫客服。</div>';
+            return; 
+        }
+
         courseListContainer.innerHTML = '';
         list.forEach(c => {
             const n = c.currentAttendees ?? 0;
