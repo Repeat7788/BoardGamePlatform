@@ -338,7 +338,8 @@ function renderCourseList(list) {
     const n = c.currentAttendees ?? 0;
     const remain = Math.max(0, c.minAttendees - n);
     const isCountMet = n >= c.minAttendees;
-    const formed = isCountMet || (c.isFormed?.includes('成團') || false);
+    // 由 Notion 公式字串判斷 已成團字串，或人數達標即認為成團
+    const formed = (c.isFormed === "已成團") || isCountMet;
 
     const statusText = formed ? "已成團" : "揪團中";
     const reachText = isCountMet ? "我們成團啦！快來加入！" : `還差 ${remain} 人成團`;
