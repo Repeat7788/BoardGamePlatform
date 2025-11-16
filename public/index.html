@@ -305,112 +305,112 @@ function hideModal() {
 // ✅ Step 1: 從 Vercel API 取得資料（含本地假資料 fallback）
 // 並維護 lastKnownData，API失敗時使用備援資料
 async function fetchCourseData() {
-  loadingMessage.style.display = 'block'; // 顯示載入訊息
-  try {
-    const res = await fetch('/api/count', { cache: "no-store" });
-    if (!res.ok) throw new Error('資料抓取失敗');
-    const data = await res.json();
+  loadingMessage.style.display = 'block'; // 顯示載入訊息
+  try {
+    const res = await fetch('/api/count', { cache: "no-store" });
+    if (!res.ok) throw new Error('資料抓取失敗');
+    const data = await res.json();
 
-    lastKnownData = data; // 成功取到資料，更新備援
-    console.log('✅ 上次成功抓取資料更新', data);
+    lastKnownData = data; // 成功取到資料，更新備援
+    console.log('✅ 上次成功抓取資料更新', data);
 
-    return data;
-  } catch (e) {
-    console.warn('⚠️ 無法從 API 抓資料：', e.message);
-    return lastKnownData ?? [];
-  } finally {
-    loadingMessage.style.display = 'none'; // 載入結束，隱藏訊息
-  }
+    return data;
+  } catch (e) {
+    console.warn('⚠️ 無法從 API 抓資料：', e.message);
+    return lastKnownData ?? [];
+  } finally {
+    loadingMessage.style.display = 'none'; // 載入結束，隱藏訊息
+  }
 }
 
 // ✅ Step 2: 渲染卡片
 function renderCourseList(list) {
-  courseListContainer.innerHTML = '';
+  courseListContainer.innerHTML = '';
 
-  // 先清除所有舊事件避免重複綁定（重建节点更易避免綁定問題）
-  document.querySelectorAll('.register-btn').forEach(btn => {
-    const newBtn = btn.cloneNode(true);
-    btn.parentNode.replaceChild(newBtn, btn);
-  });
+  // 先清除所有舊事件避免重複綁定（重建节点更易避免綁定問題）
+  document.querySelectorAll('.register-btn').forEach(btn => {
+    const newBtn = btn.cloneNode(true);
+    btn.parentNode.replaceChild(newBtn, btn);
+  });
 
-  list.forEach(c => {
+  list.forEach(c => {
 
-    const n = c.currentAttendees ?? 0;
-    const remain = Math.max(0, c.minAttendees - n);
-    const isCountMet = n >= c.minAttendees;
-    // 由 Notion 公式字串判斷 已成團字串，或人數達標即認為成團
-    const formed = (c.isFormed === "已成團") || isCountMet;
+    const n = c.currentAttendees ?? 0;
+    const remain = Math.max(0, c.minAttendees - n);
+    const isCountMet = n >= c.minAttendees;
+    // 由 Notion 公式字串判斷 已成團字串，或人數達標即認為成團
+    const formed = (c.isFormed === "已成團") || isCountMet;
 
-    const statusText = formed ? "已成團" : "揪團中";
-    const reachText = isCountMet ? "我們成團啦！快來加入！" : `還差 ${remain} 人成團`;
+    const statusText = formed ? "已成團" : "揪團中";
+    const reachText = isCountMet ? "我們成團啦！快來加入！" : `還差 ${remain} 人成團`;
 
-    const courseJson = encodeURIComponent(JSON.stringify(c));
+    const courseJson = encodeURIComponent(JSON.stringify(c));
 
-    const buttonHtml = formed
-      ? `<button class="register-btn bg-blue-500 hover:bg-blue-600"
-           data-tally-open="${c.tallyId || 'dWqpBA'}"
-           data-tally-layout="modal"
-           data-tally-hide-title="1"
-           data-tally-emoji-text="🚕"
-           data-tally-emoji-animation="head-shake">
-           前往正式報名
-         </button>`
-      : `<button 
-           class="register-btn bg-amber-500 hover:bg-amber-600"
-           data-course="${courseJson}">
-           我要參加揪團
-         </button>`;
+    const buttonHtml = formed
+      ? `<button class="register-btn bg-blue-500 hover:bg-blue-600"
+           data-tally-open="${c.tallyId || 'dWqpBA'}"
+           data-tally-layout="modal"
+           data-tally-hide-title="1"
+           data-tally-emoji-text="🚕"
+           data-tally-emoji-animation="head-shake">
+           前往正式報名
+         </button>`
+      : `<button 
+           class="register-btn bg-amber-500 hover:bg-amber-600"
+           data-course="${courseJson}">
+           我要參加揪團
+         </button>`;
 
-    const card = `
-      <div class="course-card ${formed ? 'border-2 border-green-500' : ''}">
-        <div class="status-badge ${formed ? 'status-confirmed' : 'status-pending'}">${statusText}</div>
-        <div class="course-time">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-          </svg>${c.date}
-        </div>
+    const card = `
+      <div class="course-card ${formed ? 'border-2 border-green-500' : ''}">
+        <div class="status-badge ${formed ? 'status-confirmed' : 'status-pending'}">${statusText}</div>
+        <div class="course-time">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>${c.date}
+        </div>
 
-        <p class="text-gray-500 text-sm mb-3">
-          🚖 ${c.location} 🚀 帶領人: <span class="font-semibold">${c.leader}</span>
-          💰 ${c.fee}
-        </p>
+        <p class="text-gray-500 text-sm mb-3">
+          🚖 ${c.location} 🚀 帶領人: <span class="font-semibold">${c.leader}</span>
+          💰 ${c.fee}
+        </p>
 
-        <div class="participant-count">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-amber-500" viewBox="0 0 20 20" fill="currentColor">
-            <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/>
-          </svg>
-          目前揪團: <span class="count-number">${n} 人</span>
-          <span class="text-sm text-gray-500 ml-2">(最低 ${c.minAttendees} 人)</span>
-        </div>
+        <div class="participant-count">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-amber-500" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/>
+          </svg>
+          目前揪團: <span class="count-number">${n} 人</span>
+          <span class="text-sm text-gray-500 ml-2">(最低 ${c.minAttendees} 人)</span>
+        </div>
 
-        <div class="text-sm ${formed ? 'text-green-600' : 'text-amber-600'} mb-4">${reachText}</div>
+        <div class="text-sm ${formed ? 'text-green-600' : 'text-amber-600'} mb-4">${reachText}</div>
 
-        ${buttonHtml}
+        ${buttonHtml}
 
-        <div class="text-xs text-gray-400 mt-2 text-right">（收到報名自動更新）</div>
-      </div>`;
+        <div class="text-xs text-gray-400 mt-2 text-right">（收到報名自動更新）</div>
+      </div>`;
 
-    courseListContainer.innerHTML += card;
-  });
+    courseListContainer.innerHTML += card;
+  });
 
-  // 重新綁定事件
-  document.querySelectorAll('.register-btn').forEach(btn => {
-    btn.addEventListener('click', e => {
-      const json = e.currentTarget.dataset.course;
-      if (!json) return;
+  // 重新綁定事件
+  document.querySelectorAll('.register-btn').forEach(btn => {
+    btn.addEventListener('click', e => {
+      const json = e.currentTarget.dataset.course;
+      if (!json) return;
 
-      const course = JSON.parse(decodeURIComponent(json));
-      showModal(course);
-    });
-  });
+      const course = JSON.parse(decodeURIComponent(json));
+      showModal(course);
+    });
+  });
 }
 
 // ✅ Step 3: 更新時間戳
 function updateLastUpdatedTime() {
-  const n = new Date();
-  document.getElementById('last-updated').innerHTML =
-    `最後更新：${n.toLocaleDateString('zh-TW', { month: 'numeric', day: 'numeric' })} ${n.toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' })}
-     <span class="text-gray-400 text-sm ml-2">(每分鐘自動更新)</span>`;
+  const n = new Date();
+  document.getElementById('last-updated').innerHTML =
+    `最後更新：${n.toLocaleDateString('zh-TW', { month: 'numeric', day: 'numeric' })} ${n.toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' })}
+     <span class="text-gray-400 text-sm ml-2">(每分鐘自動更新)</span>`;
 }
 
 // Modal 關閉事件綁定
@@ -419,58 +419,65 @@ modalBackdrop.addEventListener('click', e => { if (e.target === modalBackdrop) h
 
 // 表單提交（n8n Webhook）
 registrationForm.addEventListener('submit', async e => {
-  e.preventDefault();
-  const name = document.getElementById('displayName').value;
-  const email = document.getElementById('email').value;
+  e.preventDefault();
+  const name = document.getElementById('displayName').value;
+  const email = document.getElementById('email').value;
 
-  if (!currentCourse) {
-    alert("找不到課程資料，請重新操作");
-    return;
-  }
+  if (!currentCourse) {
+    alert("找不到課程資料，請重新操作");
+    return;
+  }
 
-  loadingOverlay.classList.remove('hidden');
-  try {
-    const r = await fetch("/api/register", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-taxi-secret": "repeatTaxiSuperSecret"
-      },
-      body: JSON.stringify({
-        displayName: name,
-        email,
-        course: currentCourse
-      })
-    });
+  loadingOverlay.classList.remove('hidden');
+  try {
+    const r = await fetch("/api/register", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-taxi-secret": "repeatTaxiSuperSecret"
+      },
+      body: JSON.stringify({
+        displayName: name,
+        email,
+        course: currentCourse
+      })
+    });
 
-    if (!r.ok) throw new Error(`Webhook 錯誤 ${r.status}`);
-    statusMessage.className = 'mt-4 text-center p-3 bg-green-100 text-green-700 rounded-lg';
-    statusMessage.innerHTML = '✅ 登記成功！<br>請記得綁定 LINE 官方帳號接收即時通知。';
-    registrationForm.classList.add('hidden');
-    // 隱藏 modal, 讓用戶知道已操作完成
-    setTimeout(hideModal, 1500);
-  } catch (err) {
-    statusMessage.className = 'mt-4 text-center p-3 bg-red-100 text-red-700 rounded-lg';
-    statusMessage.textContent = `❌ 登記失敗：${err.message}`;
-  } finally {
-    loadingOverlay.classList.add('hidden');
-    statusMessage.classList.remove('hidden');
-    updateLastUpdatedTime();
+    if (!r.ok) throw new Error(`Webhook 錯誤 ${r.status}`);
+    statusMessage.className = 'mt-4 text-center p-3 bg-green-100 text-green-700 rounded-lg';
+    statusMessage.innerHTML = '✅ 登記成功！<br>請記得綁定 LINE 官方帳號接收即時通知。';
+    registrationForm.classList.add('hidden');
+    // 隱藏 modal, 讓用戶知道已操作完成
+    setTimeout(hideModal, 1500);
+  } catch (err) {
+    statusMessage.className = 'mt-4 text-center p-3 bg-red-100 text-red-700 rounded-lg';
+    statusMessage.textContent = `❌ 登記失敗：${err.message}`;
+  } finally {
+    loadingOverlay.classList.add('hidden');
+    statusMessage.classList.remove('hidden');
+    updateLastUpdatedTime();
 
-    // 成功或失敗都再取得最新資料刷新 UI 保持同步
-    const data = await fetchCourseData();
-    renderCourseList(data);
-  }
+    // 成功或失敗都再取得最新資料刷新 UI 保持同步
+    const data = await fetchCourseData();
+    
+    // 🚨 修正點 1: 處理 n8n 傳來的 Item 陣列，並取出 json 屬性
+    const cleanCourses = Array.isArray(data) ? data.map(item => item.json || item) : [];
+    
+    renderCourseList(cleanCourses); // 傳入修正後的陣列
+  }
 });
 
 // ✅ Step 4: 初始化頁面
 // 移除 setInterval，只保留頁面載入和報名submit後會 fetch 一次
 window.onload = async () => {
-  const data = await fetchCourseData();
-  renderCourseList(data);
-  updateLastUpdatedTime();
+  const data = await fetchCourseData();
+  
+  // 🚨 修正點 2: 處理 n8n 傳來的 Item 陣列，並取出 json 屬性
+  const cleanCourses = Array.isArray(data) ? data.map(item => item.json || item) : [];
+  
+  renderCourseList(cleanCourses); // 傳入修正後的陣列
+  updateLastUpdatedTime();
 };
 </script>
-
 </body>
 </html>
