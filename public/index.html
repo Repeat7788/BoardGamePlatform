@@ -367,16 +367,23 @@
                 ? '我們成團啦！快來加入！'
                 : `還差 ${remain} 人成團`;
             
-            // 按鈕切換 (使用 data-id 傳遞課程 ID)
-            const buttonHtml = formed
-                ? `<button class="register-btn bg-blue-500 hover:bg-blue-600"
-                    data-tally-open="${c.tallyId || 'dWqpBA'}"
-                    data-tally-layout="modal"
-                    data-tally-hide-title="1"
-                    data-tally-emoji-text="🚕"
-                    data-tally-emoji-animation="head-shake">
-                    前往正式報名
-                  </button>`
+            // 假設您的 Tally 表單 ID 是 '9qGy71'
+const TALLY_FORM_ID = '9qGy71'; 
+
+// 為了 URL 安全，我們建議將日期替換掉特殊符號
+// 這裡使用 c.date 作為最理想的追蹤標記
+const safeDate = encodeURIComponent(c.date || c.id); 
+
+const buttonHtml = formed
+    ? `<button class="register-btn bg-blue-500 hover:bg-blue-600"
+        data-tally-open="${c.tallyId || TALLY_FORM_ID}" // 使用 TALLY_FORM_ID
+        data-tally-layout="modal"
+        data-tally-hide-title="1"
+        data-tally-emoji-text="🚕"
+        data-tally-emoji-animation="head-shake"
+        data-tally-embed-params="date=${safeDate}">  // 🌟 將參數名修正為 'date'
+        前往正式報名
+      </button>`
                 : `<button data-id="${c.id}" class="register-btn bg-amber-500 hover:bg-amber-600">我要參加揪團</button>`;
 
             // 卡片 HTML (請確認欄位 c.leader, c.fee, c.location 等與 n8n 輸出完全匹配)
