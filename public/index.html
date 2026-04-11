@@ -57,7 +57,7 @@
             transform: scale(0.9); opacity: 0; transition: all 0.3s ease-out; position: relative;}
         .modal-content.show { transform: scale(1); opacity: 1;}
 
-        /* --- 新增/優化區塊樣式 (按鈕置底/手機優化) --- */
+        /* --- 推薦課程區塊樣式 --- */
         .course-recom-section{padding:2rem 0; margin-top:2rem;}
         .course-recom-grid{display:flex; gap:20px; justify-content:center; flex-wrap: wrap;}
         .recom-card{
@@ -69,12 +69,10 @@
             padding:1.5rem;
             box-shadow:0 4px 10px rgba(0,0,0,0.05);
             transition:all 0.3s;
-            /* 關鍵：啟用 Flexbox 垂直佈局，讓按鈕置底 */
             display: flex;
             flex-direction: column;
         }
         .recom-card:hover{border-color:#0f4392; transform:translateY(-2px);}
-        /* 關鍵：讓內容區塊填滿空間，將按鈕推到底部 */
         .course-recom-card-content {
             flex-grow: 1; 
         }
@@ -95,7 +93,7 @@
         }
         .recom-link:hover{background-color:#0f4392;}
 
-        /* --- 版權頁樣式 (Footer 優化) --- */
+        /* --- Footer 樣式 --- */
         #footer {
             background-color: #112947;
             color: white;
@@ -127,14 +125,13 @@
         .footer-links a:hover {
             color: #ffc53d;
         }
-        /* 調整連結與版權聲明之間的間距 */
         .copyright {
             margin-top: 30px; 
             font-size: 0.85rem; 
             opacity: 0.8; 
         }
 
-        /* --- 手機板優化 (Media Query) --- */
+        /* --- 手機板優化 --- */
         @media (max-width: 768px) {
             .process-steps { flex-direction: column; align-items: center; }
             .step { width: 90%; max-width: 400px; margin-bottom: 10px; }
@@ -233,6 +230,7 @@
         </div>
     </div>
 
+    <!-- ===== 揪團登記 Modal ===== -->
     <div id="modal-backdrop" class="modal-backdrop">
         <div id="modal-content" class="modal-content">
             <h3 id="modal-title" class="text-xl font-bold text-gray-800 mb-4">參加揪團: </h3>
@@ -259,27 +257,25 @@
     
     <footer id="footer">
         <div class="footer-content">
-            
             <div class="footer-links">
                 <p>活動與課程邀約: <a href="mailto:repeat.taxi@gmail.com">repeat.taxi@gmail.com</a></p>
                 <p>接收即時資訊: <a href="https://line.me/R/ti/p/@818bhwdw" target="_blank">@repeat_hd_taxi</a></p>
                 <p>計程車官網: <a href="https://humandesign-galaxy.com" target="_blank">humandesign-galaxy.com</a></p>
             </div>
-
-            <p class="copyright">Repeat的人類圖計程車 | 指路人工作室 版權所有 © 2025</p>
-            
+            <p class="copyright">Repeat的人類圖計程車 | 指路人工作室 版權所有 © 2025–2026</p>
         </div>
     </footer>
 
 <script>
-    // --- 變數定義區塊 (確保只宣告一次) ---
+    // ===== 全域變數 =====
     const API_BASE_URL = window.location.origin;
+    // 【修正】統一 Tally 表單 ID，所有時段共用同一個表單
+    const DEFAULT_TALLY_FORM_ID = '9qGy71';
 
-    // 儲存課程列表，避免重複 Fetch
     let currentCourseList = []; 
     let selectedCourseId = null; 
     
-    // 定義 DOM 元素
+    // DOM 元素
     const modalBackdrop = document.getElementById('modal-backdrop');
     const modalContent = document.getElementById('modal-content');
     const modalTitle = document.getElementById('modal-title');
@@ -290,12 +286,9 @@
     const courseListContainer = document.getElementById('course-list');
     const loadingMessage = document.getElementById('loading-message');
 
-    // --- Modal 控制函式 (保留最新的邏輯) ---
-
-    // 採用最新版本：使用 selectedCourseId
+    // ===== Modal 控制 =====
     function showModal(course) {
         selectedCourseId = course.id;
-        // 修正彈窗標題：因為 c.date 和 c.location 已在 n8n Code 節點修正為正確字串
         modalTitle.textContent = `參加揪團: ${course.date} (${course.location})`; 
         registrationForm.reset();
         statusMessage.classList.add('hidden');
@@ -309,84 +302,77 @@
         setTimeout(() => modalBackdrop.style.display = 'none', 300);
     }
 
-    // --- Step 1: 從 Vercel API 取得資料（含本地假資料 fallback） ---
+    // ===== Step 1: 從 Vercel API 取得資料 =====
     async function fetchCourseData() {
-        let dataToReturn = []; // 預設回傳空陣列
+        let dataToReturn = [];
         
         try {
             const res = await fetch('/api/count', { cache: "no-store" });
             if (!res.ok) throw new Error('API 回傳狀態碼錯誤');
             
             const data = await res.json();
-            
-            // ⚡️ 數據清理: 處理 n8n 可能返回的 [ {json: c} ] 結構
+            // 數據清理: 處理 n8n 可能返回的 [ {json: c} ] 結構
             dataToReturn = Array.isArray(data) ? data.map(item => item.json || item) : [];
             
             console.log('✅ 從 Vercel API 成功抓取資料：', dataToReturn);
         } catch (e) {
-            console.warn('⚠️ 無法從 API 抓資料，改用本地假資料：', e.message);
-            // 🔥 錯誤時使用假資料 (請確認欄位名稱與 n8n 輸出一致，尤其 currentAttendees/minAttendees)
-            dataToReturn = [      
-                { id: '1', date: '11/10 (日) | 14:00–17:00', location: '台北 | 平日下午場', leader: 'Repeat🚀', fee: 800, minAttendees: 3, currentAttendees: 1, isFormed: '揪團中', tallyId: '' },
-                { id: '2', date: '11/12 (二) | 19:00–22:00', location: '台北 | 平日晚上場', leader: 'Repeat🚀', fee: 800, minAttendees: 3, currentAttendees: 2, isFormed: '揪團中', tallyId: '' },
-                { id: '3', date: '11/15 (五) | 14:00–17:00', location: '台中 | 假日場', leader: 'Repeat🚀', fee: 800, minAttendees: 3, currentAttendees: 3, isFormed: '已成團', tallyId: 'dWqpBA' }
-            ];
+            console.warn('⚠️ 無法從 API 抓取資料：', e.message);
+            // 【修正】API 失敗時不再顯示假資料，改為空陣列
+            dataToReturn = [];
         } 
         finally {
-             loadingMessage.style.display = 'none'; // 載入結束，隱藏訊息
+             loadingMessage.style.display = 'none';
         }
         
-        // 確保不論成功或失敗，都回傳 dataToReturn 陣列
         currentCourseList = dataToReturn; 
         return dataToReturn; 
     }
 
-    // --- Step 2: 渲染卡片 (優化 `formed` 邏輯和按鈕綁定) ---
+    // ===== Step 2: 渲染卡片 =====
     function renderCourseList(list) {
-        // 🚨 預防性檢查：如果傳進來的 list 不是陣列，立即停止。
         if (!Array.isArray(list)) {
-            console.error("❌ 渲染失敗：課程列表數據無效，不是陣列。", list);
-            courseListContainer.innerHTML = '<div>無法載入課程資訊，請稍後再試或聯繫客服。</div>';
+            console.error("❌ 渲染失敗：課程列表數據無效", list);
+            courseListContainer.innerHTML = '<div class="text-center p-10 text-gray-500">無法載入課程資訊，請稍後再試或聯繫我們。</div>';
             return; 
+        }
+
+        // 【修正】如果陣列為空，顯示友善提示
+        if (list.length === 0) {
+            courseListContainer.innerHTML = '<div class="text-center p-10 text-gray-500">目前沒有可報名的時段，請關注我們的 LINE 官方帳號獲取最新消息！</div>';
+            return;
         }
 
         courseListContainer.innerHTML = '';
         list.forEach(c => {
-            // 使用 ?? 確保即使 currentAttendees/minAttendees 為 null/undefined，仍有 0 作為計算基數
             const n = c.currentAttendees ?? 0;
             const min = c.minAttendees ?? 0; 
             const remain = Math.max(0, min - n);
             const isCountMet = n >= min;
             
-            // 🚨 修正 `formed` 邏輯：使用 n8n 傳來的字串判斷
+            // 【修正】isFormed 判斷：n8n 現在會正確傳回 "已成團" 或 "揪團中"
             const formed = isCountMet || (c.isFormed?.includes('成團') || false); 
 
-            // 顯示用文字
             const statusText = formed ? '已成團' : '揪團中';
             const reachText = isCountMet
                 ? '我們成團啦！快來加入！'
                 : `還差 ${remain} 人成團`;
             
-            // 假設您的 Tally 表單 ID 是 '9qGy71'
-const TALLY_FORM_ID = '9qGy71'; 
+            // 【修正】Tally 按鈕：移除 HTML 裡的 JS 註解，使用統一的表單 ID
+            const safeDate = encodeURIComponent(c.date || c.id); 
+            const tallyFormId = c.tallyId || DEFAULT_TALLY_FORM_ID;
 
-// 為了 URL 安全，我們建議將日期替換掉特殊符號
-// 這裡使用 c.date 作為最理想的追蹤標記
-const safeDate = encodeURIComponent(c.date || c.id); 
+            const buttonHtml = formed
+                ? `<button class="register-btn bg-blue-500 hover:bg-blue-600"
+                    data-tally-open="${tallyFormId}"
+                    data-tally-layout="modal"
+                    data-tally-hide-title="1"
+                    data-tally-emoji-text="🚕"
+                    data-tally-emoji-animation="head-shake"
+                    data-tally-embed-params="date=${safeDate}">
+                    前往正式報名
+                  </button>`
+                : `<button data-id="${c.id}" class="register-btn bg-amber-500 hover:bg-amber-600 join-btn">我要參加揪團</button>`;
 
-const buttonHtml = formed
-    ? `<button class="register-btn bg-blue-500 hover:bg-blue-600"
-        data-tally-open="${c.tallyId || TALLY_FORM_ID}" // 使用 TALLY_FORM_ID
-        data-tally-layout="modal"
-        data-tally-hide-title="1"
-        data-tally-emoji-text="🚕"
-        data-tally-emoji-animation="head-shake"
-        data-tally-embed-params="date=${safeDate}">  
-        前往正式報名
-      </button>`
-                : `<button data-id="${c.id}" class="register-btn bg-amber-500 hover:bg-amber-600">我要參加揪團</button>`;
-
-            // 卡片 HTML (請確認欄位 c.leader, c.fee, c.location 等與 n8n 輸出完全匹配)
             const card = `
               <div class="course-card ${formed ? 'border-2 border-green-500' : ''}">
                 <div class="status-badge ${formed ? 'status-confirmed' : 'status-pending'}">${statusText}</div>
@@ -407,46 +393,37 @@ const buttonHtml = formed
                 </div>
                 <div class="text-sm font-medium ${formed ? 'text-green-600' : 'text-amber-600'} mb-4">${reachText}</div>
                 ${buttonHtml}
-                <div class="text-xs text-gray-400 mt-2 text-right">
-                  （收到報名自動更新）
-                </div>
               </div>`;
             courseListContainer.innerHTML += card;
         });
 
-        // 綁定事件 (揪團用)
-        document.querySelectorAll('.register-btn').forEach(b => {
+        // 【修正】綁定事件：使用 class 選擇器更精確
+        document.querySelectorAll('.join-btn').forEach(b => {
             b.addEventListener('click', e => {
                 const id = e.currentTarget.dataset.id;
-                // 從全域課程列表中找到課程物件
                 const c = currentCourseList.find(x => x.id === id); 
-                
-                if (!c) return;
-                // 只有「我要參加揪團」的按鈕需要彈窗
-                if (b.textContent.includes('揪團')) showModal(c); 
+                if (c) showModal(c); 
             });
         });
     }
 
-    // --- Step 3: 更新時間戳 (保持不變) ---
+    // ===== Step 3: 更新時間戳 =====
     function updateLastUpdatedTime() {
         const n = new Date();
         document.getElementById('last-updated').innerHTML =
-            `最後更新：${n.toLocaleDateString('zh-TW', { month: 'numeric', day: 'numeric' })} ${n.toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' })}
-             <span class="text-gray-400 text-sm ml-2">(每分鐘自動更新)</span>`;
+            `最後更新：${n.toLocaleDateString('zh-TW', { month: 'numeric', day: 'numeric' })} ${n.toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' })}`;
     }
 
-    // --- Modal 表單與事件處理 ---
+    // ===== Modal 表單與事件處理 =====
     modalCancelBtn.addEventListener('click', hideModal);
     modalBackdrop.addEventListener('click', e => { if (e.target === modalBackdrop) hideModal(); });
 
-    // 表單提交（n8n Webhook）
+    // 表單提交
     registrationForm.addEventListener('submit', async e => {
         e.preventDefault();
-        const name = document.getElementById('displayName').value;
-        const email = document.getElementById('email').value;
+        const name = document.getElementById('displayName').value.trim();
+        const email = document.getElementById('email').value.trim();
         
-        // 從全域列表中取得課程
         const c = selectedCourseId ? currentCourseList.find(x => x.id === selectedCourseId) : null; 
         
         if (!c) {
@@ -456,26 +433,27 @@ const buttonHtml = formed
         
         loadingOverlay.classList.remove('hidden');
         try {
-            // Webhook URL 改為 Vercel API Route
+            // 【修正】移除前端的 x-taxi-secret header（安全性修復）
+            // secret 由 Vercel /api/register.js 從環境變數自行加上
             const r = await fetch('/api/register', { 
                 method: 'POST',
                 headers: { 
-                    'Content-Type': 'application/json',
-                    'x-taxi-secret': 'repeatTaxiSuperSecret' 
+                    'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
                     displayName: name,
                     email: email,
-                    // 傳遞所有課程資訊給 n8n
                     course: c 
                 })
             });
             
-            if (!r.ok) throw new Error(`Webhook 錯誤 ${r.status}`);
+            if (!r.ok) throw new Error(`伺服器回應錯誤 (${r.status})`);
+            
+            // 【修正】成功訊息改為 email 相關提示，移除 LINE 綁定提示
             statusMessage.className = 'mt-4 text-center p-3 bg-green-100 text-green-700 rounded-lg';
-            statusMessage.innerHTML = '✅ 登記成功！<br>請記得綁定 LINE 官方帳號接收即時通知。';
+            statusMessage.innerHTML = '✅ 登記成功！成團後我們會寄 Email 通知您。';
             registrationForm.classList.add('hidden');
-            setTimeout(hideModal, 1500);
+            setTimeout(hideModal, 2000);
         } catch (err) {
             statusMessage.className = 'mt-4 text-center p-3 bg-red-100 text-red-700 rounded-lg';
             statusMessage.textContent = `❌ 登記失敗：${err.message}`;
@@ -484,15 +462,15 @@ const buttonHtml = formed
             statusMessage.classList.remove('hidden');
             updateLastUpdatedTime();
 
-            // 成功或失敗後，重新 Fetch 並渲染最新的資料
+            // 重新抓取並渲染最新資料
             const data = await fetchCourseData();
             renderCourseList(data);
         }
     });
 
-    // --- Step 4: 初始化頁面 ---
+    // ===== Step 4: 初始化頁面 =====
     window.onload = async () => {
-        loadingMessage.style.display = 'block'; // 確保載入訊息顯示
+        loadingMessage.style.display = 'block';
         const data = await fetchCourseData();
         renderCourseList(data);
         updateLastUpdatedTime();
