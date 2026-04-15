@@ -174,19 +174,25 @@
                     <div class="step">
                         <div class="step-number">1</div>
                         <div class="step-content">
-                            <h3>點擊揪團</h3><p>選擇時段並進入 Email 登記</p>
+                            <h3>登記揪團</h3><p>選擇喜歡的時段，填寫姓名與 Email 即完成登記</p>
                         </div>
                     </div>
                     <div class="step">
                         <div class="step-number">2</div>
                         <div class="step-content">
-                            <h3>揪團人數追蹤</h3><p>系統即時更新狀態，達標自動成團</p>
+                            <h3>等待成團</h3><p>系統即時更新人數，達到最低人數即自動成團</p>
                         </div>
                     </div>
                     <div class="step">
                         <div class="step-number">3</div>
                         <div class="step-content">
-                            <h3>正式報名繳費</h3><p>成團後，您將收到 Email 通知進行報名付款。</p>
+                            <h3>正式報名</h3><p>成團後點擊「前往正式報名」，填寫報名資訊並線上繳費</p>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">4</div>
+                        <div class="step-content">
+                            <h3>完成！</h3><p>繳費後將收到 Email 確認信，當天帶著好心情來玩就好</p>
                         </div>
                     </div>
                 </div>
@@ -452,11 +458,15 @@
             
             if (!r.ok) throw new Error(`伺服器回應錯誤 (${r.status})`);
             
-            // 【修正】成功訊息改為 email 相關提示，移除 LINE 綁定提示
             statusMessage.className = 'mt-4 text-center p-3 bg-green-100 text-green-700 rounded-lg';
-            statusMessage.innerHTML = '✅ 登記成功！成團後我們會寄 Email 通知您。';
+            statusMessage.innerHTML = `
+                <p class="text-lg font-bold mb-2">✅ 登記成功！</p>
+                <p class="text-sm mb-1">我們已收到您的揪團登記。</p>
+                <p class="text-sm mb-1">成團後將寄送 Email 通知您。</p>
+                <p class="text-sm mb-3" style="color:#0f4392; font-weight:600;">届時請回到本頁點擊「前往正式報名」完成繳費即可。</p>
+                <button onclick="hideModal()" class="mt-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition text-sm font-semibold">我知道了</button>
+            `;
             registrationForm.classList.add('hidden');
-            setTimeout(hideModal, 2000);
         } catch (err) {
             statusMessage.className = 'mt-4 text-center p-3 bg-red-100 text-red-700 rounded-lg';
             statusMessage.textContent = `❌ 登記失敗：${err.message}`;
