@@ -355,23 +355,45 @@
         list.forEach(c => {
             const n = c.currentAttendees ?? 0;
             const min = c.minAttendees ?? 0; 
+            const max = c.maxAttendees ?? 6; // 預設每桌最多 6 人
             const remain = Math.max(0, min - n);
+            const spotsLeft = Math.max(0, max - n);
             const isCountMet = n >= min;
+            const isFull = n >= max;
             
-            // 【修正】isFormed 判斷：n8n 現在會正確傳回 "已成團" 或 "揪團中"
+            // isFormed 判斷：n8n 傳回 "已成團" 或 "揪團中"
             const formed = isCountMet || (c.isFormed?.includes('成團') || false); 
 
-            const statusText = formed ? '已成團' : '揪團中';
-            const reachText = isCountMet
-                ? '我們成團啦！快來加入！'
-                : `還差 ${remain} 人成團`;
+            // 三種狀態的文字
+            let statusText, statusClass, reachText, reachColor;
+            if (isFull) {
+                statusText = '已滿團';
+                statusClass = 'status-confirmed';
+                reachText = '本場次已額滿，敬請期待下一場！';
+                reachColor = 'text-blue-600';
+            } else if (formed) {
+                statusText = '已成團';
+                statusClass = 'status-confirmed';
+                reachText = `成團囉！還有 ${spotsLeft} 個名額，一起來玩吧！`;
+                reachColor = 'text-green-600';
+            } else {
+                statusText = '揪團中';
+                statusClass = 'status-pending';
+                reachText = `還差 ${remain} 人成團`;
+                reachColor = 'text-amber-600';
+            }
             
-            // 【修正】Tally 按鈕：移除 HTML 裡的 JS 註解，使用統一的表單 ID
+            // Tally 按鈕
             const safeDate = encodeURIComponent(c.date || c.id); 
             const tallyFormId = c.tallyId || DEFAULT_TALLY_FORM_ID;
 
-            const buttonHtml = formed
-                ? `<button class="register-btn bg-blue-500 hover:bg-blue-600"
+            let buttonHtml;
+            if (isFull) {
+                // 滿團：按鈕變灰色不可點擊
+                buttonHtml = `<button class="register-btn bg-gray-400 cursor-not-allowed" disabled>已額滿</button>`;
+            } else if (formed) {
+                // 已成團但未滿：顯示正式報名按鈕
+                buttonHtml = `<button class="register-btn bg-blue-500 hover:bg-blue-600"
                     data-tally-open="${tallyFormId}"
                     data-tally-layout="modal"
                     data-tally-hide-title="1"
@@ -379,12 +401,15 @@
                     data-tally-emoji-animation="head-shake"
                     data-tally-embed-params="date=${safeDate}">
                     前往正式報名
-                  </button>`
-                : `<button data-id="${c.id}" class="register-btn bg-amber-500 hover:bg-amber-600 join-btn">我要參加揪團</button>`;
+                  </button>`;
+            } else {
+                // 未成團：揪團登記按鈕
+                buttonHtml = `<button data-id="${c.id}" class="register-btn bg-amber-500 hover:bg-amber-600 join-btn">我要參加揪團</button>`;
+            }
 
             const card = `
-              <div class="course-card ${formed ? 'border-2 border-green-500' : ''}">
-                <div class="status-badge ${formed ? 'status-confirmed' : 'status-pending'}">${statusText}</div>
+              <div class="course-card ${isFull ? 'border-2 border-gray-300 opacity-75' : formed ? 'border-2 border-green-500' : ''}">
+                <div class="status-badge ${statusClass}">${statusText}</div>
                 <div class="course-time">
                   <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
@@ -398,9 +423,9 @@
                     <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/>
                   </svg>
                   目前揪團: <span class="count-number">${n} 人</span>
-                  <span class="text-sm text-gray-500 ml-2">(最低 ${min} 人)</span>
+                  <span class="text-sm text-gray-500 ml-2">(${min}–${max} 人開桌)</span>
                 </div>
-                <div class="text-sm font-medium ${formed ? 'text-green-600' : 'text-amber-600'} mb-4">${reachText}</div>
+                <div class="text-sm font-medium ${reachColor} mb-4">${reachText}</div>
                 ${buttonHtml}
               </div>`;
             courseListContainer.innerHTML += card;
