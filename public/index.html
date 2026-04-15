@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>人類圖桌遊「未來導航」揪團神器</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚕</text></svg>">
     
     <script src="https://cdn.tailwindcss.com"></script>
-    <script async src="https://tally.so/widgets/embed.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
     
     <style>
@@ -186,13 +186,13 @@
                     <div class="step">
                         <div class="step-number">3</div>
                         <div class="step-content">
-                            <h3>正式報名</h3><p>成團後點擊「前往正式報名」，填寫報名資訊並線上繳費</p>
+                            <h3>確認報名</h3><p>成團後點擊「確認報名」，填寫聯絡資訊即完成</p>
                         </div>
                     </div>
                     <div class="step">
                         <div class="step-number">4</div>
                         <div class="step-content">
-                            <h3>完成！</h3><p>繳費後將收到 Email 確認信，當天帶著好心情來玩就好</p>
+                            <h3>現場付款</h3><p>當天帶著好心情來玩，現場繳費即可</p>
                         </div>
                     </div>
                 </div>
@@ -239,24 +239,33 @@
         </div>
     </div>
 
-    <!-- ===== 揪團登記 Modal ===== -->
+    <!-- ===== 揪團登記 / 確認報名 Modal ===== -->
     <div id="modal-backdrop" class="modal-backdrop">
         <div id="modal-content" class="modal-content">
-            <h3 id="modal-title" class="text-xl font-bold text-gray-800 mb-4">參加揪團: </h3>
-            <p class="text-sm text-gray-600 mb-4">請填寫 Email (成團通知將寄至此信箱)。</p>
+            <h3 id="modal-title" class="text-xl font-bold text-gray-800 mb-4"></h3>
+            <p id="modal-desc" class="text-sm text-gray-600 mb-4"></p>
             
             <form id="registration-form" class="space-y-4">
                 <div>
                     <label for="displayName" class="block text-sm font-medium text-gray-700">您的暱稱/姓名</label>
-                    <input type="text" id="displayName" name="displayName" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-amber-500 focus:border-amber-500" placeholder="例如：貓咪也愛人類圖">
+                    <input type="text" id="displayName" name="displayName" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" placeholder="例如：黃色皮克敏">
                 </div>
                 <div>
-                    <label for="email" class="block text-sm font-medium text-gray-700">Email (報名信箱)</label>
-                    <input type="email" id="email" name="email" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-amber-500 focus:border-amber-500" placeholder="your@email.com">
+                    <label for="email" class="block text-sm font-medium text-gray-700">Email（寄送通知用）</label>
+                    <input type="email" id="email" name="email" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" placeholder="your@email.com">
+                </div>
+                <!-- 電話欄位：只在確認報名模式顯示 -->
+                <div id="phone-field" class="hidden">
+                    <label for="phone" class="block text-sm font-medium text-gray-700">現場聯絡電話</label>
+                    <input type="tel" id="phone" name="phone" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" placeholder="0912-345-678">
+                </div>
+                <!-- 付款提示：只在確認報名模式顯示 -->
+                <div id="payment-info" class="hidden p-3 bg-blue-50 rounded-lg border border-blue-200">
+                    <p class="text-sm text-blue-800 font-medium" id="payment-text"></p>
                 </div>
                 <div class="flex justify-end space-x-3 pt-2">
                     <button type="button" id="modal-cancel-btn" class="px-4 py-2 text-gray-600 bg-gray-200 rounded-lg hover:bg-gray-300 transition duration-150">取消</button>
-                    <button type="submit" class="px-4 py-2 text-white bg-amber-500 rounded-lg hover:bg-amber-600 transition duration-150 font-semibold">確認登記</button>
+                    <button type="submit" id="modal-submit-btn" class="px-4 py-2 text-white rounded-lg transition duration-150 font-semibold">送出</button>
                 </div>
             </form>
             <div id="loading-overlay" class="absolute inset-0 bg-white bg-opacity-80 flex items-center justify-center rounded-xl hidden"><p class="ml-3 text-gray-700">處理中，請稍候...</p></div>
@@ -278,30 +287,57 @@
 <script>
     // ===== 全域變數 =====
     const API_BASE_URL = window.location.origin;
-    // 【修正】統一 Tally 表單 ID，所有時段共用同一個表單
-    const DEFAULT_TALLY_FORM_ID = '9qGy71';
 
     let currentCourseList = []; 
-    let selectedCourseId = null; 
+    let selectedCourseId = null;
+    let currentModalMode = 'join'; // 'join' = 揪團登記, 'confirm' = 確認報名
     
     // DOM 元素
     const modalBackdrop = document.getElementById('modal-backdrop');
     const modalContent = document.getElementById('modal-content');
     const modalTitle = document.getElementById('modal-title');
+    const modalDesc = document.getElementById('modal-desc');
     const modalCancelBtn = document.getElementById('modal-cancel-btn');
+    const modalSubmitBtn = document.getElementById('modal-submit-btn');
     const registrationForm = document.getElementById('registration-form');
     const loadingOverlay = document.getElementById('loading-overlay');
     const statusMessage = document.getElementById('status-message');
     const courseListContainer = document.getElementById('course-list');
     const loadingMessage = document.getElementById('loading-message');
+    const phoneField = document.getElementById('phone-field');
+    const phoneInput = document.getElementById('phone');
+    const paymentInfo = document.getElementById('payment-info');
+    const paymentText = document.getElementById('payment-text');
 
     // ===== Modal 控制 =====
-    function showModal(course) {
+    function showModal(course, mode) {
         selectedCourseId = course.id;
-        modalTitle.textContent = `參加揪團: ${course.date} (${course.location})`; 
+        currentModalMode = mode || 'join';
         registrationForm.reset();
         statusMessage.classList.add('hidden');
         registrationForm.classList.remove('hidden');
+
+        if (currentModalMode === 'confirm') {
+            // 確認報名模式
+            modalTitle.textContent = `確認報名: ${course.date}`;
+            modalDesc.textContent = `📍 ${course.location} ｜ 🚀 帶領人: ${course.leader}`;
+            phoneField.classList.remove('hidden');
+            phoneInput.required = true;
+            paymentInfo.classList.remove('hidden');
+            paymentText.textContent = `💰 活動當天現場付款 $${course.fee || 800}（現金）`;
+            modalSubmitBtn.textContent = '確認報名';
+            modalSubmitBtn.className = 'px-4 py-2 text-white bg-blue-500 rounded-lg hover:bg-blue-600 transition duration-150 font-semibold';
+        } else {
+            // 揪團登記模式
+            modalTitle.textContent = `參加揪團: ${course.date}`;
+            modalDesc.textContent = `📍 ${course.location} ｜ 🚀 帶領人: ${course.leader}`;
+            phoneField.classList.add('hidden');
+            phoneInput.required = false;
+            paymentInfo.classList.add('hidden');
+            modalSubmitBtn.textContent = '確認登記';
+            modalSubmitBtn.className = 'px-4 py-2 text-white bg-amber-500 rounded-lg hover:bg-amber-600 transition duration-150 font-semibold';
+        }
+
         modalBackdrop.style.display = 'flex';
         setTimeout(() => modalContent.classList.add('show'), 10);
     }
@@ -383,25 +419,15 @@
                 reachColor = 'text-amber-600';
             }
             
-            // Tally 按鈕
-            const safeDate = encodeURIComponent(c.date || c.id); 
-            const tallyFormId = c.tallyId || DEFAULT_TALLY_FORM_ID;
-
             let buttonHtml;
             if (isFull) {
-                // 滿團：按鈕變灰色不可點擊
                 buttonHtml = `<button class="register-btn bg-gray-400 cursor-not-allowed" disabled>已額滿</button>`;
             } else if (formed) {
-                // 已成團但未滿：顯示正式報名按鈕
-                buttonHtml = `<button class="register-btn bg-blue-500 hover:bg-blue-600"
-                    data-tally-open="${tallyFormId}"
-                    data-tally-layout="modal"
-                    data-tally-hide-title="1"
-                    data-tally-emoji-text="🚕"
-                    data-tally-emoji-animation="head-shake"
-                    data-tally-embed-params="date=${safeDate}">
-                    前往正式報名
-                  </button>`;
+                // 已成團：確認報名按鈕（用 Modal）
+                buttonHtml = `<button data-id="${c.id}" class="register-btn bg-blue-500 hover:bg-blue-600 confirm-btn">
+                    確認報名（現場付款 $${c.fee || 800}）
+                  </button>
+                  <p class="text-xs text-gray-500 mt-2 text-center">填寫聯絡資訊即完成報名，活動當天現場繳費</p>`;
             } else {
                 // 未成團：揪團登記按鈕
                 buttonHtml = `<button data-id="${c.id}" class="register-btn bg-amber-500 hover:bg-amber-600 join-btn">我要參加揪團</button>`;
@@ -423,7 +449,7 @@
                     <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/>
                   </svg>
                   目前揪團: <span class="count-number">${n} 人</span>
-                  <span class="text-sm text-gray-500 ml-2">(${min}–${max} 人開桌)</span>
+                  <span class="text-sm text-gray-500 ml-2">(${min}人成團，${max}人滿團)</span>
                 </div>
                 <div class="text-sm font-medium ${reachColor} mb-4">${reachText}</div>
                 ${buttonHtml}
@@ -431,12 +457,20 @@
             courseListContainer.innerHTML += card;
         });
 
-        // 【修正】綁定事件：使用 class 選擇器更精確
+        // 綁定揪團按鈕
         document.querySelectorAll('.join-btn').forEach(b => {
             b.addEventListener('click', e => {
                 const id = e.currentTarget.dataset.id;
                 const c = currentCourseList.find(x => x.id === id); 
-                if (c) showModal(c); 
+                if (c) showModal(c, 'join'); 
+            });
+        });
+        // 綁定確認報名按鈕
+        document.querySelectorAll('.confirm-btn').forEach(b => {
+            b.addEventListener('click', e => {
+                const id = e.currentTarget.dataset.id;
+                const c = currentCourseList.find(x => x.id === id); 
+                if (c) showModal(c, 'confirm'); 
             });
         });
     }
@@ -457,6 +491,7 @@
         e.preventDefault();
         const name = document.getElementById('displayName').value.trim();
         const email = document.getElementById('email').value.trim();
+        const phone = document.getElementById('phone').value.trim();
         
         const c = selectedCourseId ? currentCourseList.find(x => x.id === selectedCourseId) : null; 
         
@@ -467,8 +502,6 @@
         
         loadingOverlay.classList.remove('hidden');
         try {
-            // 【修正】移除前端的 x-taxi-secret header（安全性修復）
-            // secret 由 Vercel /api/register.js 從環境變數自行加上
             const r = await fetch('/api/register', { 
                 method: 'POST',
                 headers: { 
@@ -477,20 +510,34 @@
                 body: JSON.stringify({
                     displayName: name,
                     email: email,
+                    phone: phone || '',
+                    mode: currentModalMode,
                     course: c 
                 })
             });
             
             if (!r.ok) throw new Error(`伺服器回應錯誤 (${r.status})`);
             
-            statusMessage.className = 'mt-4 text-center p-3 bg-green-100 text-green-700 rounded-lg';
-            statusMessage.innerHTML = `
-                <p class="text-lg font-bold mb-2">✅ 登記成功！</p>
-                <p class="text-sm mb-1">我們已收到您的揪團登記。</p>
-                <p class="text-sm mb-1">成團後將寄送 Email 通知您。</p>
-                <p class="text-sm mb-3" style="color:#0f4392; font-weight:600;">届時請回到本頁點擊「前往正式報名」完成繳費即可。</p>
-                <button onclick="hideModal()" class="mt-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition text-sm font-semibold">我知道了</button>
-            `;
+            statusMessage.className = 'mt-4 text-center p-3 rounded-lg';
+
+            if (currentModalMode === 'confirm') {
+                statusMessage.classList.add('bg-blue-100', 'text-blue-700');
+                statusMessage.innerHTML = `
+                    <p class="text-lg font-bold mb-2">✅ 報名完成！</p>
+                    <p class="text-sm mb-1">活動當天現場付款 $${c.fee || 800}（現金）。</p>
+                    <p class="text-sm mb-3">行前通知將寄送至您的 Email，期待見到你！</p>
+                    <button onclick="hideModal()" class="mt-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm font-semibold">我知道了</button>
+                `;
+            } else {
+                statusMessage.classList.add('bg-green-100', 'text-green-700');
+                statusMessage.innerHTML = `
+                    <p class="text-lg font-bold mb-2">✅ 登記成功！</p>
+                    <p class="text-sm mb-1">我們已收到您的揪團登記。</p>
+                    <p class="text-sm mb-1">成團後將寄送 Email 通知您。</p>
+                    <p class="text-sm mb-3" style="color:#0f4392; font-weight:600;">成團後請回到本頁點擊「確認報名」填寫聯絡資訊，活動當天現場付款即可。</p>
+                    <button onclick="hideModal()" class="mt-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition text-sm font-semibold">我知道了</button>
+                `;
+            }
             registrationForm.classList.add('hidden');
         } catch (err) {
             statusMessage.className = 'mt-4 text-center p-3 bg-red-100 text-red-700 rounded-lg';
