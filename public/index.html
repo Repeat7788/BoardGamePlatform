@@ -204,6 +204,13 @@
                     <div class="text-center p-10 text-gray-500" id="loading-message">正在載入最新的揪團人數...</div>
                 </div>
             </section>
+
+            <!-- 許願池 -->
+            <section style="text-align:center; padding:1.5rem; margin:1.5rem 0; background:linear-gradient(135deg, #f8e185 0%, #fff4d6 100%); border-radius:12px; border:2px dashed #eeba2b;">
+                <p style="font-size:1.1rem; font-weight:700; color:#112947; margin:0 0 0.5rem 0;">🌟 沒有方便的時段嗎？</p>
+                <p style="font-size:0.95rem; color:#112947; margin:0 0 1rem 0; opacity:0.8;">告訴我們你希望的時間，我們來幫你揪！</p>
+                <a href="https://line.me/R/ti/p/@818bhwdw" target="_blank" style="display:inline-block; padding:0.6rem 1.5rem; background:#06C755; color:#fff; border-radius:8px; font-weight:600; text-decoration:none; font-size:0.95rem;">💬 到 LINE 許願時段</a>
+            </section>
             
             <section id="other-courses" class="course-recom-section">
                 <h2 class="process-title text-center pb-2 mb-4">
@@ -433,6 +440,11 @@
                 buttonHtml = `<button data-id="${c.id}" class="register-btn bg-amber-500 hover:bg-amber-600 join-btn">我要參加揪團</button>`;
             }
 
+            // 帶領人連結（有填才顯示）
+            const leaderLink = c.leaderUrl 
+                ? `<a href="${c.leaderUrl}" target="_blank" class="text-xs text-blue-500 hover:text-blue-700 mt-2 inline-block">認識帶領人 →</a>`
+                : '';
+
             const card = `
               <div class="course-card ${isFull ? 'border-2 border-gray-300 opacity-75' : formed ? 'border-2 border-green-500' : ''}">
                 <div class="status-badge ${statusClass}">${statusText}</div>
@@ -442,7 +454,7 @@
                   </svg>${c.date || '未設定時間'}
                 </div>
                 <p class="text-gray-500 text-sm mb-3">
-                  🚖 ${c.location || '未設定地點'} 🚀 帶領人: <span class="font-semibold">${c.leader || '未設定'}</span> 💰 ${c.fee || 'TBD'}
+                  📍 ${c.location || '未設定地點'} ．🚀 帶領人: <span class="font-semibold">${c.leader || '未設定'}</span> ．💰 ${c.fee || 'TBD'}
                 </p>
                 <div class="participant-count">
                   <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-amber-500" viewBox="0 0 20 20" fill="currentColor">
@@ -453,6 +465,7 @@
                 </div>
                 <div class="text-sm font-medium ${reachColor} mb-4">${reachText}</div>
                 ${buttonHtml}
+                <div class="text-center mt-1">${leaderLink}</div>
               </div>`;
             courseListContainer.innerHTML += card;
         });
@@ -524,7 +537,8 @@
                 statusMessage.classList.add('bg-blue-100', 'text-blue-700');
                 statusMessage.innerHTML = `
                     <p class="text-lg font-bold mb-2">✅ 報名完成！</p>
-                    <p class="text-sm mb-1">請留意 Email 通知，届時將寄送詳細活動地點與注意事項。</p>
+                    <p class="text-sm mb-1">請留意 Email 通知，</p>
+                    <p class="text-sm mb-1">我們會寄送詳細的活動時間與地點。</p>
                     <p class="text-sm mb-3">期待見到你！</p>
                     <button onclick="hideModal()" class="mt-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm font-semibold">我知道了</button>
                 `;
