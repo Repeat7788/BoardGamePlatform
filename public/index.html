@@ -21,15 +21,23 @@
             max-width:900px; width:100%; margin:2rem auto;
             background:#fff; border-radius:20px; box-shadow:0 20px 60px #0004; overflow:hidden;
         }
-        .header { background: linear-gradient(135deg,#0f4392 0%,#6393d1 100%);
-            color:#fff;padding:2.5rem 2rem;}
-        .header-content{ display:flex; align-items:center; justify-content:center; gap:2.5rem; margin-bottom:1.5rem;}
-        .logo-image { width:120px; height:120px; object-fit:cover; border-radius:14px; box-shadow:0 2px 8px #0f43924d; }
-        .title-section h1 { margin:0;font-size:2rem;font-weight:700;text-align:left;}
-        .title-section h2 { margin: 0; font-size: 2rem; font-weight: 700; text-align: left; color: #f8e185; line-height: 1.2;}
-        .description { margin:0 0 1rem 0; font-size:1rem; opacity:.95; max-width:600px; margin-left:auto; margin-right:auto;
-            line-height:1.6; background:rgba(255,255,255,0.1); padding:1rem 1.5rem; border-radius:12px;}
-        .updatetime{margin-top:1.2em;font-size:.98em;color:#fff;opacity:.94;font-weight:600; text-align: center;}
+        .header { background: #0f4392; color:#fff; padding:0; }
+        .header-main { display:flex; align-items:center; gap:24px; padding:28px 28px 24px; }
+        .logo-image { width:100px; height:100px; object-fit:cover; border-radius:12px; border:2px solid rgba(255,255,255,0.2); flex-shrink:0; }
+        .title-section { flex:1; }
+        .title-section .subtitle { font-size:0.875rem; opacity:0.7; margin:0 0 4px 0; }
+        .title-section h1 { margin:0; font-size:1.625rem; font-weight:700; text-align:left; line-height:1.2; }
+        .title-section h2 { margin:0 0 12px 0; font-size:1.25rem; font-weight:700; text-align:left; color:#f8e185; line-height:1.2; }
+        .header-desc { font-size:0.8rem; line-height:1.6; opacity:0.85; margin:0 0 14px 0; }
+        .header-actions { display:flex; gap:10px; flex-wrap:wrap; }
+        .header-actions a { display:inline-block; padding:6px 14px; border-radius:6px; font-size:0.75rem; font-weight:600; text-decoration:none; }
+        .btn-primary { background:#f8e185; color:#112947; }
+        .btn-secondary { background:rgba(255,255,255,0.15); color:#fff; }
+        .btn-primary:hover { background:#eeba2b; }
+        .btn-secondary:hover { background:rgba(255,255,255,0.25); }
+        .header-bar { background:rgba(255,255,255,0.05); padding:8px 28px; font-size:0.7rem; color:rgba(255,255,255,0.6); display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px; }
+        .header-bar a { color:#f8e185; text-decoration:none; }
+        .header-bar a:hover { text-decoration:underline; }
         .content {padding:2rem;}
         
         /* 揪團流程區塊樣式 */
@@ -137,11 +145,13 @@
             .step { width: 90%; max-width: 400px; margin-bottom: 10px; }
             .course-recom-grid { flex-direction: column; align-items: center; }
             .recom-card { flex: 1 1 100%; margin-bottom: 15px; }
-            .title-section h1 { font-size: 1.5rem; }
-            .title-section h2 { font-size: 1.8rem; }
-            .header-content { flex-direction: column; gap: 1rem; }
-            .logo-image { width: 80px; height: 80px; }
-            .description { padding: 0.8rem 1rem; }
+            .header-main { flex-direction: column; text-align: center; padding: 24px 20px 20px; }
+            .title-section .subtitle, .title-section h1, .title-section h2 { text-align: center; }
+            .title-section h1 { font-size: 1.3rem; }
+            .header-desc { text-align: center; }
+            .header-actions { justify-content: center; flex-wrap: wrap; }
+            .logo-image { width: 72px; height: 72px; }
+            .header-bar { justify-content: center; text-align: center; flex-wrap: wrap; gap: 4px 12px; }
             .content { padding: 1rem; }
         }
     </style>
@@ -150,21 +160,25 @@
 
     <div id="app" class="container">
 
-        <header class="header text-center">
-            <div class="header-content">
+        <header class="header">
+            <div class="header-main">
                 <img src="/for_logo.png" alt="人類圖桌遊「未來導航」商品圖" class="logo-image">
                 <div class="title-section">
-                    <h1 class="text-white">人類圖桌遊「未來導航」</h1>
-                    <h2 class="text-amber-300">揪團神器</h2>
+                    <p class="subtitle">世界首款人類圖桌遊</p>
+                    <h1 class="text-white">未來導航｜做決策的工具</h1>
+                    <h2>揪團神器</h2>
+                    <p class="header-desc">透過遊戲自然理解人類圖，練習類型、策略和權威的決策流程。</p>
+                    <div class="header-actions">
+                        <a href="#course-list-section" class="btn-primary">選擇時段開始揪團 ↓</a>
+                        <a href="https://line.me/R/ti/p/@818bhwdw" target="_blank" class="btn-secondary">加入 LINE 官方帳號</a>
+                        <a href="https://humandesign-galaxy.com" target="_blank" class="btn-secondary">官方網站</a>
+                    </div>
                 </div>
             </div>
-            <p class="description text-white">
-                全球首款結合人類圖原理的互動桌遊，《未來導航》讓你透過遊戲自然理解人類圖這套全新的「做決策的工具」，透過遊戲的步驟，練習類型、策略和權威的決策流程。邀你一起參與全新體驗！
-            </p>
-         <p id="last-updated" class="updatetime">🚕 計程車導航系統更新中...</p>
-         <p class="updatetime" style="margin-top:0.5em; font-size:0.9em; opacity:0.85;">
-            📱 加入 <a href="https://line.me/R/ti/p/@818bhwdw" target="_blank" style="color:#f8e185; text-decoration:underline;">LINE 官方帳號</a>，輸入「<strong style="color:#f8e185;">桌遊揪團</strong>」即可獲得最新揪團資訊
-         </p>
+            <div class="header-bar">
+                <span id="last-updated">🚕 計程車導航系統更新中...</span>
+                <span>輸入「<a href="https://line.me/R/ti/p/@818bhwdw" target="_blank">桌遊揪團</a>」查詢最新人數</span>
+            </div>
         </header>
 
         <div class="content">
@@ -198,7 +212,7 @@
                 </div>
             </section>
 
-            <section>
+            <section id="course-list-section">
                 <h2 class="process-title text-left border-b pb-2 mb-4">目前可報名時段</h2>
                 <div id="course-list" class="course-grid">
                     <div class="text-center p-10 text-gray-500" id="loading-message">正在載入最新的揪團人數...</div>
