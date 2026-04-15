@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>領航員操作手冊｜未來導航揪團神器</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚕</text></svg>">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family:'Noto Sans TC',sans-serif; color:#112947; background:#f5f7fa; line-height:1.8; font-size:15px; }
+        .wrapper { max-width:760px; margin:0 auto; padding:20px 16px 60px; }
+
+        /* 封面 */
+        .cover { background:#0f4392; color:white; border-radius:16px; padding:48px 32px; text-align:center; margin-bottom:32px; }
+        .cover h1 { font-size:28px; font-weight:700; line-height:1.3; margin-bottom:8px; }
+        .cover .sub { font-size:16px; font-weight:500; color:#f8e185; margin-bottom:16px; }
+        .cover .desc { font-size:14px; opacity:0.8; }
+
+        /* 章節 */
+        .section { background:white; border-radius:12px; padding:28px 24px; margin-bottom:20px; border:1px solid #e5e7eb; }
+        h2 { font-size:20px; font-weight:700; color:#0f4392; margin-bottom:16px; padding-bottom:8px; border-bottom:2px solid #eeba2b; }
+        h3 { font-size:16px; font-weight:700; color:#0f4392; margin:20px 0 10px; }
+        p { margin-bottom:10px; }
+
+        /* 步驟 */
+        .step { display:flex; gap:12px; align-items:flex-start; background:#f8f9fb; border-radius:10px; padding:14px 16px; margin-bottom:10px; }
+        .step-num { background:#0f4392; color:white; min-width:30px; height:30px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:14px; flex-shrink:0; }
+        .step-title { font-weight:700; margin-bottom:2px; }
+        .step-desc { font-size:14px; color:#6b7280; line-height:1.6; }
+
+        /* 提示框 */
+        .info { border-radius:10px; padding:14px 18px; margin:14px 0; font-size:14px; line-height:1.7; }
+        .info-blue { background:#e8f0fe; color:#0c447c; }
+        .info-yellow { background:#fdf6e3; color:#633806; }
+        .info-red { background:#fee2e2; color:#b91c1c; }
+        .info b { font-weight:700; }
+
+        /* 表格 */
+        table { width:100%; border-collapse:collapse; margin:10px 0 16px; font-size:14px; }
+        th { background:#0f4392; color:white; font-weight:700; text-align:left; padding:10px 12px; }
+        td { padding:9px 12px; border-bottom:1px solid #e5e7eb; vertical-align:top; }
+        tr:nth-child(even) td { background:#f9fafb; }
+        @media(max-width:600px) {
+            table { font-size:13px; }
+            th, td { padding:8px 8px; }
+        }
+
+        /* 狀態表 */
+        .status-pending { color:#d97706; font-weight:700; }
+        .status-formed { color:#16a34a; font-weight:700; }
+        .status-full { color:#6b7280; font-weight:700; }
+        .st-row-pending td { background:#fdf6e3; }
+        .st-row-formed td { background:#dcfce7; }
+        .st-row-full td { background:#f3f4f6; }
+
+        /* FAQ */
+        .faq { margin-bottom:14px; }
+        .faq-q { font-weight:700; margin-bottom:2px; }
+        .faq-a { font-size:14px; color:#374151; padding-left:16px; }
+
+        /* 聯繫 */
+        .contact td:first-child { font-weight:700; width:130px; }
+        .contact td:last-child { color:#6393d1; }
+
+        /* 返回按鈕 */
+        .back-link { display:inline-block; margin-bottom:16px; font-size:14px; color:#6393d1; text-decoration:none; }
+        .back-link:hover { text-decoration:underline; }
+
+        /* 頁尾 */
+        .doc-footer { text-align:center; font-size:12px; color:#9ca3af; margin-top:24px; padding-top:16px; border-top:1px solid #e5e7eb; }
+
+        /* 手機 */
+        @media(max-width:600px) {
+            .cover { padding:32px 20px; }
+            .cover h1 { font-size:22px; }
+            .section { padding:20px 16px; }
+            .step { flex-direction:column; gap:8px; }
+        }
+    </style>
+</head>
+<body>
+<div class="wrapper">
+
+<a href="/" class="back-link">← 返回揪團神器</a>
+
+<!-- 封面 -->
+<div class="cover">
+    <h1>🚕 未來導航｜揪團神器</h1>
+    <div class="sub">領航員操作手冊</div>
+    <div class="desc">從開設時段到成團通知的完整指引</div>
+</div>
+
+<!-- 第一章 -->
+<div class="section">
+    <h2>一、揪團神器是什麼？</h2>
+    <p>「未來導航揪團神器」是一個線上揪團平台，讓領航員可以自由開設桌遊帶玩的時段，有興趣的玩家在網頁上登記，系統自動追蹤人數，達到最低人數就自動成團。</p>
+    
+    <h3>平台網址</h3>
+    <p><a href="https://boardgame-platform.vercel.app/" style="color:#6393d1;">https://boardgame-platform.vercel.app/</a></p>
+
+    <h3>揪團流程總覽</h3>
+    <div class="step"><div class="step-num">1</div><div><div class="step-title">領航員開設時段</div><div class="step-desc">在 Notion 資料庫新增一筆時段，填寫日期、地點、費用等資訊。網頁會自動顯示。</div></div></div>
+    <div class="step"><div class="step-num">2</div><div><div class="step-title">玩家登記揪團</div><div class="step-desc">玩家在網頁上看到時段後，填寫姓名和 Email 即完成登記。系統即時更新人數。</div></div></div>
+    <div class="step"><div class="step-num">3</div><div><div class="step-title">自動成團</div><div class="step-desc">當登記人數達到你設定的最低人數，網頁狀態自動變為「已成團」。</div></div></div>
+    <div class="step"><div class="step-num">4</div><div><div class="step-title">領航員確認場地 + 發送通知</div><div class="step-desc">你確認場地後，在 Notion 打勾「發送成團通知」，系統自動寄 Email 給所有登記者。</div></div></div>
+    <div class="step"><div class="step-num">5</div><div><div class="step-title">玩家確認報名</div><div class="step-desc">登記者回到網頁點「確認報名」，填寫聯絡電話。活動當天現場付款。</div></div></div>
+</div>
+
+<!-- 第二章 -->
+<div class="section">
+    <h2>二、開始使用：取得 Notion 權限</h2>
+    <p>所有時段資料都存在 Notion 資料庫中。你需要取得協作權限才能新增時段。</p>
+
+    <h3>步驟</h3>
+    <p><b>1.</b> 將你的 Notion 帳號 Email 傳給 Repeat</p>
+    <p><b>2.</b> Repeat 會將你加入「桌遊時段資料庫」的協作者</p>
+    <p><b>3.</b> 你會在 Notion 左側欄看到共享的資料庫</p>
+    <p><b>4.</b> 開始新增你的帶玩時段</p>
+
+    <div class="info info-blue">💡 你只需要操作「桌遊時段資料庫」。登記者的資料由系統自動處理，不需要你手動管理。</div>
+</div>
+
+<!-- 第三章 -->
+<div class="section">
+    <h2>三、如何新增帶玩時段</h2>
+    <p>在 Notion「桌遊時段資料庫」中新增一筆資料，填寫以下欄位：</p>
+
+    <h3>✏️ 你需要填寫的欄位</h3>
+    <table>
+        <tr><th>欄位名稱</th><th>類型</th><th>說明</th><th>範例</th></tr>
+        <tr><td>時段名稱</td><td>Title</td><td>固定格式，用於網頁顯示</td><td>04/26（六）｜ 14:00–17:00</td></tr>
+        <tr><td>預設地點</td><td>Text</td><td>城市 ｜ 場地描述</td><td>台北 ｜ 下午場</td></tr>
+        <tr><td>帶領人</td><td>Text</td><td>你的名字或暱稱</td><td>Repeat</td></tr>
+        <tr><td>帶領人連結</td><td>URL</td><td>你的 IG / FB（選填）</td><td>https://instagram.com/...</td></tr>
+        <tr><td>費用</td><td>Number</td><td>每人費用（新台幣）</td><td>800</td></tr>
+        <tr><td>成團人數</td><td>Number</td><td>最低開桌人數（建議 3）</td><td>3</td></tr>
+        <tr><td>滿團人數</td><td>Number</td><td>每桌上限（建議 6）</td><td>6</td></tr>
+        <tr><td>活動日期</td><td>Date</td><td>用於排序，選日期即可</td><td>2026-04-26</td></tr>
+    </table>
+
+    <h3>🔒 不要碰的欄位（系統自動處理）</h3>
+    <table>
+        <tr><th>欄位名稱</th><th>類型</th><th>說明</th></tr>
+        <tr><td>目前人數</td><td>Rollup</td><td>自動統計登記人數</td></tr>
+        <tr><td>是否成團</td><td>Formula</td><td>根據人數自動判斷成團狀態</td></tr>
+        <tr><td>揪團名單</td><td>Relation</td><td>自動連結登記者資料</td></tr>
+        <tr><td>通知已發送</td><td>Checkbox</td><td>寄信後自動打勾，不要手動動它</td></tr>
+    </table>
+
+    <div class="info info-yellow">📝 <b>時段名稱的格式很重要！</b><br>
+    請統一使用：MM/DD（星期）｜ HH:MM–HH:MM<br>
+    例如：04/26（六）｜ 14:00–17:00<br>
+    這個文字會直接顯示在網頁上，格式統一才好看。</div>
+</div>
+
+<!-- 第四章 -->
+<div class="section">
+    <h2>四、成團後要做什麼？</h2>
+    <p>當你的時段人數達到成團門檻，Notion 上的「是否成團」會自動顯示 ✅ 已成團。接下來請按以下順序操作：</p>
+
+    <div class="step"><div class="step-num">1</div><div><div class="step-title">確認場地</div><div class="step-desc">聯繫場地確認租借。成團前不需要先訂場地，確認成團後再訂即可。</div></div></div>
+    <div class="step"><div class="step-num">2</div><div><div class="step-title">填入「確定地點」</div><div class="step-desc">在 Notion 該時段的「確定地點」欄位填入完整地址。<br>例如：台北小樹屋（忠孝復興站 3 號出口步行 3 分鐘）</div></div></div>
+    <div class="step"><div class="step-num">3</div><div><div class="step-title">打勾「發送成團通知」</div><div class="step-desc">在「確定地點」填好之後，打勾「發送成團通知」。<br>系統會自動寄 Email 通知所有登記者，告知成團資訊並請他們回來確認報名。</div></div></div>
+    <div class="step"><div class="step-num">4</div><div><div class="step-title">等待玩家確認報名</div><div class="step-desc">登記者收到信後會回到網頁點「確認報名」，填寫聯絡電話。<br>你可以在 Notion 的「揪團名單」看到誰已經填了電話 = 確認會來的人。</div></div></div>
+    <div class="step"><div class="step-num">5</div><div><div class="step-title">活動前一天：發行前通知</div><div class="step-desc">手動寄一封行前通知信，提醒時間地點和注意事項。也可以在社群發文提醒。</div></div></div>
+
+    <div class="info info-red">⚠️ <b>重要：先填地點，再打勾通知！</b><br>
+    打勾的瞬間系統就會寄信。如果地點還沒填，信裡就不會有場地資訊。<br>
+    打勾後「通知已發送」會自動變成 ✅，代表信已寄出。不要重複打勾。</div>
+</div>
+
+<!-- 第五章 -->
+<div class="section">
+    <h2>五、網頁上的三種狀態</h2>
+    <p>玩家在網頁上會看到三種不同的時段狀態：</p>
+
+    <table>
+        <tr><th>狀態</th><th>條件</th><th>玩家看到的按鈕</th><th>說明</th></tr>
+        <tr class="st-row-pending"><td class="status-pending">揪團中</td><td>人數 &lt; 成團人數</td><td>我要參加揪團（黃色）</td><td>玩家填姓名 + Email 登記</td></tr>
+        <tr class="st-row-formed"><td class="status-formed">已成團</td><td>成團人數 ≤ 人數 &lt; 滿團人數</td><td>確認報名（藍色）</td><td>玩家填姓名 + Email + 電話</td></tr>
+        <tr class="st-row-full"><td class="status-full">已滿團</td><td>人數 ≥ 滿團人數</td><td>已額滿（灰色）</td><td>按鈕不可點擊</td></tr>
+    </table>
+</div>
+
+<!-- 第六章 -->
+<div class="section">
+    <h2>六、常見問題</h2>
+
+    <div class="faq"><div class="faq-q">Q：新增時段後網頁多久會更新？</div><div class="faq-a">A：玩家每次打開或重新整理網頁時會自動抓取最新資料。不需要額外操作。</div></div>
+    <div class="faq"><div class="faq-q">Q：可以修改已開設的時段嗎？</div><div class="faq-a">A：可以。直接在 Notion 修改欄位內容，玩家重新整理網頁就會看到更新。</div></div>
+    <div class="faq"><div class="faq-q">Q：超過滿團人數怎麼辦？</div><div class="faq-a">A：網頁會顯示「已滿團」，按鈕不可點擊。如果想開第二桌，在 Notion 新增一筆新時段即可。</div></div>
+    <div class="faq"><div class="faq-q">Q：我能看到誰登記了嗎？</div><div class="faq-a">A：可以。點開該時段的「揪團名單」欄位，會連結到所有登記者的資料（姓名、Email、電話）。</div></div>
+    <div class="faq"><div class="faq-q">Q：成團通知信會從哪個信箱寄出？</div><div class="faq-a">A：從 repeat.taxi@gmail.com 寄出。信裡會顯示你的名字作為帶領人。</div></div>
+    <div class="faq"><div class="faq-q">Q：玩家重複登記同一時段會怎樣？</div><div class="faq-a">A：系統會自動偵測，不會重複新增。如果之前登記過，這次會更新那筆資料（例如補上電話）。</div></div>
+    <div class="faq"><div class="faq-q">Q：我想取消一個時段怎麼辦？</div><div class="faq-a">A：在 Notion 刪除那筆時段資料即可。網頁上就不會再顯示。已登記的人需要你手動通知。</div></div>
+    <div class="faq"><div class="faq-q">Q：活動當天怎麼收費？</div><div class="faq-a">A：現場向玩家收取現金。金額就是你在 Notion「費用」欄位填的數字。費用由各帶領人自行收取。</div></div>
+</div>
+
+<!-- 第七章 -->
+<div class="section">
+    <h2>七、需要協助？</h2>
+    <table class="contact">
+        <tr><th>管道</th><th>資訊</th></tr>
+        <tr><td>Email</td><td>repeat.taxi@gmail.com</td></tr>
+        <tr><td>LINE 官方帳號</td><td>@repeat_hd_taxi</td></tr>
+        <tr><td>官網</td><td><a href="https://humandesign-galaxy.com" style="color:#6393d1;">humandesign-galaxy.com</a></td></tr>
+    </table>
+</div>
+
+<div class="doc-footer">
+    Repeat 的人類圖計程車｜指路人工作室 © 2026<br>
+    本文件僅供「未來導航」領航員內部使用
+</div>
+
+</div>
+</body>
+</html>
