@@ -101,6 +101,19 @@
         }
         .recom-link:hover{background-color:#0f4392;}
 
+        /* --- 領航員介紹區塊 --- */
+        .navigator-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; }
+        .navigator-card { background: #fff; border: 2px solid #e5e7eb; border-radius: 12px; padding: 1rem; text-align: center; cursor: pointer; transition: all 0.2s; }
+        .navigator-card:hover { border-color: #6393d1; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(15, 67, 146, 0.1); }
+        .navigator-avatar { width: 80px; height: 80px; border-radius: 50%; margin: 0 auto 0.75rem; background: #f3f4f6; display: block; }
+        .navigator-name { font-weight: 700; color: #112947; font-size: 1rem; margin-bottom: 0.25rem; }
+        .navigator-city { font-size: 0.8rem; color: #6b7280; margin-bottom: 0.5rem; }
+        .navigator-tags { display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; }
+        .nav-tag { font-size: 0.7rem; background: #e8f0fe; color: #0f4392; padding: 2px 8px; border-radius: 10px; }
+        @media (max-width: 500px) {
+            .navigator-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+
         /* --- Footer 樣式 --- */
         #footer {
             background-color: #112947;
@@ -212,6 +225,15 @@
                 </div>
             </section>
 
+            <!-- 領航員介紹區塊 -->
+            <section id="navigators-section" style="margin-bottom: 2rem;">
+                <h2 class="process-title text-left border-b pb-2 mb-4">認識我們的領航員</h2>
+                <p class="text-sm text-gray-500 mb-4">點擊頭像認識帶領你的領航員（持續新增中）</p>
+                <div id="navigator-list" class="navigator-grid">
+                    <div class="text-center p-6 text-gray-400" id="nav-loading">正在載入領航員資訊...</div>
+                </div>
+            </section>
+
             <section id="course-list-section">
                 <h2 class="process-title text-left border-b pb-2 mb-4">目前可報名時段</h2>
                 <div id="course-list" class="course-grid">
@@ -257,6 +279,21 @@
                     </div>
                 </div>
             </section>
+        </div>
+    </div>
+
+    <!-- ===== 領航員 Modal ===== -->
+    <div id="nav-modal-backdrop" class="modal-backdrop">
+        <div id="nav-modal-content" class="modal-content">
+            <div class="text-center">
+                <img id="nav-modal-avatar" class="mx-auto mb-3" style="width:96px; height:96px; border-radius:50%; background:#f3f4f6;" alt="">
+                <h3 id="nav-modal-name" class="text-xl font-bold text-gray-800 mb-1"></h3>
+                <p id="nav-modal-city" class="text-sm text-gray-500 mb-3"></p>
+                <div id="nav-modal-tags" class="flex flex-wrap gap-1 justify-center mb-4"></div>
+                <p id="nav-modal-bio" class="text-sm text-gray-700 mb-4 text-left" style="line-height:1.6;"></p>
+                <div id="nav-modal-links" class="space-y-2 mb-4"></div>
+                <button id="nav-modal-close" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 text-sm font-semibold">關閉</button>
+            </div>
         </div>
     </div>
 
@@ -582,11 +619,98 @@
         }
     });
 
+    // ===== 領航員介紹區塊 =====
+    const navModalBackdrop = document.getElementById('nav-modal-backdrop');
+    const navModalContent = document.getElementById('nav-modal-content');
+    const navModalCloseBtn = document.getElementById('nav-modal-close');
+    let currentNavigators = [];
+
+    async function fetchNavigators() {
+        try {
+            const res = await fetch('/api/navigators', { cache: 'no-store' });
+            if (!res.ok) throw new Error('載入失敗');
+            const data = await res.json();
+            return Array.isArray(data) ? data.map(item => item.json || item) : [];
+        } catch (e) {
+            console.warn('領航員資料載入失敗：', e.message);
+            return [];
+        }
+    }
+
+    function renderNavigators(list) {
+        const container = document.getElementById('navigator-list');
+        if (!Array.isArray(list) || list.length === 0) {
+            container.innerHTML = '<div class="text-center p-6 text-gray-400 col-span-full">領航員資訊準備中，敬請期待！</div>';
+            return;
+        }
+        currentNavigators = list;
+        container.innerHTML = '';
+        list.forEach((n, idx) => {
+            const avatarUrl = `https://api.dicebear.com/7.x/bottts-neutral/svg?seed=${n.avatarSeed || encodeURIComponent(n.name)}`;
+            const cities = Array.isArray(n.cities) ? n.cities.join(' / ') : '';
+            const tags = Array.isArray(n.tags) ? n.tags.slice(0, 3).map(t => `<span class="nav-tag">${t}</span>`).join('') : '';
+            const card = `
+                <div class="navigator-card" data-idx="${idx}">
+                    <img src="${avatarUrl}" class="navigator-avatar" alt="${n.name}">
+                    <div class="navigator-name">${n.name}</div>
+                    <div class="navigator-city">📍 ${cities || '各地'}</div>
+                    <div class="navigator-tags">${tags}</div>
+                </div>
+            `;
+            container.innerHTML += card;
+        });
+        document.querySelectorAll('.navigator-card').forEach(c => {
+            c.addEventListener('click', e => {
+                const idx = parseInt(e.currentTarget.dataset.idx);
+                showNavigatorModal(currentNavigators[idx]);
+            });
+        });
+    }
+
+    function showNavigatorModal(nav) {
+        if (!nav) return;
+        const avatarUrl = `https://api.dicebear.com/7.x/bottts-neutral/svg?seed=${nav.avatarSeed || encodeURIComponent(nav.name)}`;
+        document.getElementById('nav-modal-avatar').src = avatarUrl;
+        document.getElementById('nav-modal-name').textContent = nav.name;
+        document.getElementById('nav-modal-city').textContent = '📍 ' + (Array.isArray(nav.cities) ? nav.cities.join(' / ') : '');
+        
+        const tagsContainer = document.getElementById('nav-modal-tags');
+        tagsContainer.innerHTML = (Array.isArray(nav.tags) ? nav.tags : []).map(t => `<span class="nav-tag">${t}</span>`).join('');
+        
+        document.getElementById('nav-modal-bio').textContent = nav.bio || '';
+        
+        const linksContainer = document.getElementById('nav-modal-links');
+        let linksHtml = '';
+        if (nav.linkUrl) {
+            linksHtml += `<a href="${nav.linkUrl}" target="_blank" class="block w-full py-2 px-4 bg-blue-500 hover:bg-blue-600 text-white rounded-lg text-sm font-semibold text-center">🔗 ${nav.linkText || '前往個人連結'}</a>`;
+        }
+        if (nav.email) {
+            linksHtml += `<a href="mailto:${nav.email}" class="block w-full py-2 px-4 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-sm font-semibold text-center">✉️ ${nav.email}</a>`;
+        }
+        linksContainer.innerHTML = linksHtml;
+        
+        navModalBackdrop.style.display = 'flex';
+        setTimeout(() => navModalContent.classList.add('show'), 10);
+    }
+
+    function hideNavigatorModal() {
+        navModalContent.classList.remove('show');
+        setTimeout(() => navModalBackdrop.style.display = 'none', 300);
+    }
+
+    navModalCloseBtn.addEventListener('click', hideNavigatorModal);
+    navModalBackdrop.addEventListener('click', e => { if (e.target === navModalBackdrop) hideNavigatorModal(); });
+
     // ===== Step 4: 初始化頁面 =====
     window.onload = async () => {
         loadingMessage.style.display = 'block';
-        const data = await fetchCourseData();
-        renderCourseList(data);
+        // 並行載入兩份資料
+        const [courses, navigators] = await Promise.all([
+            fetchCourseData(),
+            fetchNavigators()
+        ]);
+        renderCourseList(courses);
+        renderNavigators(navigators);
         updateLastUpdatedTime();
     };
 </script>
