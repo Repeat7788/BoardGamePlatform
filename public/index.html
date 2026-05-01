@@ -22,8 +22,8 @@
             background:#fff; border-radius:20px; box-shadow:0 20px 60px #0004; overflow:hidden;
         }
         .header { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); color:#fff; padding:0; }
-        .header-main { text-align:center; padding:40px 28px 28px; position:relative; }
-        .header-main::before { content:''; position:absolute; top:16px; left:16px; right:16px; bottom:16px; border:1px solid rgba(248,225,133,0.15); border-radius:12px; pointer-events:none; }
+        .header-main { text-align:center; padding:24px 2rem 20px; }
+        .header-inner { border:2px solid rgba(248,225,133,0.25); border-radius:16px; padding:28px 24px 20px; }
         .header-logo { max-width:320px; width:80%; margin:0 auto 16px; display:block; }
         .header-eng { font-size:0.7rem; letter-spacing:4px; opacity:0.3; margin-bottom:12px; }
         .header-divider { width:50px; height:1px; background:linear-gradient(90deg,transparent,#f8e185,transparent); margin:0 auto 12px; }
@@ -187,11 +187,13 @@
 
         <header class="header">
             <div class="header-main">
-                <img src="/logo-future-nav.png" alt="未來導航" class="header-logo">
-                <div class="header-eng">FUTURE NAVIGATION</div>
-                <div class="header-divider"></div>
-                <div class="header-tagline">世界首款人類圖桌遊 ─ 做決策的工具</div>
-                <p class="header-desc">找到你的場次，一起開桌吧。</p>
+                <div class="header-inner">
+                    <img src="/logo-future-nav.png" alt="未來導航" class="header-logo">
+                    <div class="header-eng">FUTURE NAVIGATION</div>
+                    <div class="header-divider"></div>
+                    <div class="header-tagline">世界首款人類圖桌遊 ─ 做決策的工具</div>
+                    <p class="header-desc">找到你的場次，一起開桌吧。</p>
+                </div>
             </div>
             <div class="header-bar">
                 <span id="last-updated">更新中...</span>
