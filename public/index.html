@@ -270,24 +270,24 @@
 
             <!-- 許願池 -->
             <section style="padding:1.5rem; margin:1.5rem 0; background:linear-gradient(135deg, #f8e185 0%, #fff4d6 100%); border-radius:12px; border:2px dashed #eeba2b;">
-                <p style="font-size:1.1rem; font-weight:700; color:#112947; margin:0 0 0.5rem 0; text-align:center;">🌟 沒有方便的時段嗎？</p>
-                <p style="font-size:0.95rem; color:#112947; margin:0 0 1rem 0; opacity:0.8; text-align:center;">告訴我們你希望的時間和地點，我們來幫你揪！</p>
-                
-                <div id="wish-form" style="max-width:500px; margin:0 auto;">
-                    <div style="display:flex; gap:8px; margin-bottom:8px;">
-                        <input type="text" id="wish-name" placeholder="你的暱稱" style="flex:1; padding:8px 12px; border:1px solid #eeba2b; border-radius:8px; font-size:14px; font-family:inherit;">
-                        <input type="text" id="wish-city" placeholder="希望的城市" style="flex:1; padding:8px 12px; border:1px solid #eeba2b; border-radius:8px; font-size:14px; font-family:inherit;">
-                    </div>
-                    <div style="display:flex; gap:8px;">
-                        <input type="text" id="wish-text" placeholder="希望的時段，例如：週六下午、平日晚上..." style="flex:1; padding:8px 12px; border:1px solid #eeba2b; border-radius:8px; font-size:14px; font-family:inherit;">
-                        <button id="wish-submit" style="padding:8px 16px; background:#0f4392; color:white; border:none; border-radius:8px; font-weight:600; cursor:pointer; font-size:14px; white-space:nowrap;">許願</button>
-                    </div>
-                </div>
+                <p style="font-size:1.1rem; font-weight:700; color:#112947; margin:0 0 0.25rem 0; text-align:center;">🌟 時段許願牆</p>
+                <p style="font-size:0.85rem; color:#112947; margin:0 0 1rem 0; opacity:0.6; text-align:center;">看到和你一樣想法的許願？按 +1 讓領航員知道！</p>
 
-                <!-- 許願牆 -->
-                <div id="wish-wall" style="margin-top:1rem; display:flex; flex-wrap:wrap; gap:8px; justify-content:center;">
+                <!-- 許願牆（大卡片） -->
+                <div id="wish-wall" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:10px; margin-bottom:1rem;">
                 </div>
-                <p id="wish-empty" style="text-align:center; font-size:0.85rem; color:#112947; opacity:0.5; margin-top:0.75rem;">還沒有人許願，成為第一個吧！</p>
+                <p id="wish-empty" style="text-align:center; font-size:0.85rem; color:#112947; opacity:0.4; margin-bottom:1rem;">還沒有人許願，成為第一個吧！</p>
+
+                <!-- 填寫欄位（縮小） -->
+                <details style="max-width:480px; margin:0 auto;">
+                    <summary style="cursor:pointer; text-align:center; font-size:0.9rem; color:#0f4392; font-weight:600;">✏️ 我也要許願</summary>
+                    <div style="margin-top:10px; display:flex; flex-wrap:wrap; gap:6px;">
+                        <input type="text" id="wish-name" placeholder="暱稱" style="flex:1; min-width:80px; padding:6px 10px; border:1px solid #eeba2b; border-radius:6px; font-size:13px; font-family:inherit;">
+                        <input type="text" id="wish-city" placeholder="城市" style="flex:1; min-width:80px; padding:6px 10px; border:1px solid #eeba2b; border-radius:6px; font-size:13px; font-family:inherit;">
+                        <input type="text" id="wish-text" placeholder="希望的時段" style="flex:2; min-width:140px; padding:6px 10px; border:1px solid #eeba2b; border-radius:6px; font-size:13px; font-family:inherit;">
+                        <button id="wish-submit" style="padding:6px 14px; background:#0f4392; color:white; border:none; border-radius:6px; font-weight:600; cursor:pointer; font-size:13px; white-space:nowrap;">送出</button>
+                    </div>
+                </details>
             </section>
             
             <section id="other-courses" class="course-recom-section">
@@ -767,15 +767,33 @@
             return;
         }
         empty.style.display = 'none';
-        wall.innerHTML = list.map(w => 
-            `<div style="background:white; border:1px solid #eeba2b; border-radius:8px; padding:6px 12px; font-size:13px; color:#112947;">
-                <span style="font-weight:600;">${w.name || '匿名'}</span>
-                <span style="opacity:0.6; margin:0 4px;">·</span>
-                <span style="color:#0f4392;">${w.city || ''}</span>
-                <span style="opacity:0.6; margin:0 4px;">·</span>
-                <span>${w.wish || ''}</span>
+        wishes = list;
+        wall.innerHTML = list.map((w, idx) => 
+            `<div style="background:white; border:1px solid #eeba2b; border-radius:10px; padding:12px 14px; display:flex; flex-direction:column; gap:6px;">
+                <div style="font-size:14px; font-weight:600; color:#112947;">${w.wish || ''}</div>
+                <div style="font-size:12px; color:#6b7280;">📍 ${w.city || '不限'} ・ ${w.name || '匿名'}</div>
+                <div style="display:flex; align-items:center; justify-content:space-between; margin-top:4px;">
+                    <span style="font-size:12px; color:#0f4392; font-weight:600;">👍 ${w.votes || 0} 人也想要</span>
+                    <button onclick="voteWish('${w.id}')" style="padding:3px 10px; background:#e8f0fe; color:#0f4392; border:1px solid #0f4392; border-radius:14px; font-size:12px; font-weight:600; cursor:pointer;">+1</button>
+                </div>
             </div>`
         ).join('');
+    }
+
+    async function voteWish(wishId) {
+        try {
+            const r = await fetch('/api/wish-vote', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: wishId })
+            });
+            if (!r.ok) throw new Error('投票失敗');
+            await new Promise(resolve => setTimeout(resolve, 800));
+            const updated = await fetchWishes();
+            renderWishes(updated);
+        } catch (err) {
+            console.warn('投票失敗', err);
+        }
     }
 
     document.getElementById('wish-submit').addEventListener('click', async () => {
@@ -792,7 +810,7 @@
             const r = await fetch('/api/wish-submit', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name: name || '匿名', city, wish })
+                body: JSON.stringify({ name: name || '匿名', city: city || '不限', wish })
             });
             if (!r.ok) throw new Error('送出失敗');
             
@@ -800,14 +818,13 @@
             document.getElementById('wish-city').value = '';
             document.getElementById('wish-text').value = '';
             
-            // 重新載入許願牆
             await new Promise(resolve => setTimeout(resolve, 1000));
             const updated = await fetchWishes();
             renderWishes(updated);
         } catch (err) {
             alert('許願失敗，請稍後再試');
         } finally {
-            btn.textContent = '許願';
+            btn.textContent = '送出';
             btn.disabled = false;
         }
     });
