@@ -119,11 +119,11 @@
 
         /* --- 領航員介紹區塊 --- */
         .navigator-collapse { border: 2px solid #e5e7eb; border-radius: 12px; padding: 1rem 1.5rem; }
-        .navigator-toggle { cursor: pointer; list-style: none; display: flex; align-items: center; justify-content: space-between; }
+        .navigator-toggle { cursor: pointer; list-style: none; display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
         .navigator-toggle::-webkit-details-marker { display: none; }
-        .toggle-hint { font-size: 0.85rem; color: #6b7280; transition: transform 0.2s; }
+        .toggle-hint { font-size: 0.85rem; color: #0f4392; font-weight: 600; white-space: nowrap; padding-top: 4px; }
         details[open] .toggle-hint { transform: rotate(180deg); }
-        details[open] .toggle-hint::after { content: ''; }
+        .nav-pill { display: inline-block; padding: 3px 12px; background: #e8f0fe; color: #0f4392; border-radius: 14px; font-size: 0.8rem; font-weight: 600; }
         .navigator-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; }
         .navigator-card { background: #fff; border: 2px solid #e5e7eb; border-radius: 12px; padding: 1rem; text-align: center; cursor: pointer; transition: all 0.2s; }
         .navigator-card:hover { border-color: #6393d1; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(15, 67, 146, 0.1); }
@@ -251,10 +251,14 @@
             <section id="navigators-section" style="margin-bottom: 2rem;">
                 <details class="navigator-collapse">
                     <summary class="navigator-toggle">
-                        <h2 class="process-title text-left" style="margin:0; display:inline;">認識我們的領航員</h2>
-                        <span class="toggle-hint">點擊展開 ▼</span>
+                        <div style="flex:1;">
+                            <h2 class="process-title text-left" style="margin:0 0 6px 0;">認識我們的領航員</h2>
+                            <div id="nav-stats" style="font-size:0.85rem; color:#6b7280; margin-bottom:8px;"></div>
+                            <div id="nav-pills" style="display:flex; flex-wrap:wrap; gap:6px;"></div>
+                        </div>
+                        <span class="toggle-hint">展開 ▼</span>
                     </summary>
-                    <p class="text-sm text-gray-500 mb-4 mt-3">點擊頭像認識帶領你的領航員（持續新增中）</p>
+                    <p class="text-sm text-gray-500 mb-4 mt-3">點擊頭像認識帶領你的領航員</p>
                     <div id="navigator-list" class="navigator-grid">
                         <div class="text-center p-6 text-gray-400" id="nav-loading">正在載入領航員資訊...</div>
                     </div>
@@ -682,11 +686,25 @@
 
     function renderNavigators(list) {
         const container = document.getElementById('navigator-list');
+        const statsEl = document.getElementById('nav-stats');
+        const pillsEl = document.getElementById('nav-pills');
+
         if (!Array.isArray(list) || list.length === 0) {
             container.innerHTML = '<div class="text-center p-6 text-gray-400 col-span-full">領航員資訊準備中，敬請期待！</div>';
+            statsEl.textContent = '';
+            pillsEl.innerHTML = '';
             return;
         }
         currentNavigators = list;
+
+        // 統計行：人數 + 城市
+        const allCities = [...new Set(list.flatMap(n => Array.isArray(n.cities) ? n.cities : []))];
+        statsEl.textContent = `🧑‍✈️ ${list.length} 位領航員・橫跨 ${allCities.join(' / ') || '各地'}（持續新增中）`;
+
+        // 名字膠囊
+        pillsEl.innerHTML = list.map(n => `<span class="nav-pill">${n.name}</span>`).join('');
+
+        // 展開後的完整卡片
         container.innerHTML = '';
         list.forEach((n, idx) => {
             const avatarUrl = `https://api.dicebear.com/7.x/bottts-neutral/svg?seed=${n.avatarSeed || encodeURIComponent(n.name)}`;
