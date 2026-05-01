@@ -55,9 +55,25 @@
         .participant-count{display:flex;align-items:center;gap:0.5rem;margin-bottom:1rem;font-size:1rem;color:#112947;}
         .count-number{font-size:1.5rem;font-weight:700;color:#0f4392;}
         .status-badge{display:inline-block;padding:0.5rem 1rem;border-radius:20px;font-size:0.875rem;font-weight:600;margin-bottom:1rem;}
-        .status-confirmed{background:#6393d1;color:#fff;}
+        .status-confirmed{background:#16a34a;color:#fff;}
+        .status-full{background:#6393d1;color:#fff;}
         .status-pending{background:#b6ccd7;color:#112947;}
         .register-btn{width:100%;padding:0.75rem;background:linear-gradient(135deg,#eeba2b 0%,#f8e185 100%);color:#112947;border:none;border-radius:8px;font-size:1rem;font-weight:600;cursor:pointer;}
+
+        /* 折疊按鈕 */
+        .toggle-btn { background:none; border:1px solid #d1d5db; border-radius:8px; padding:6px 16px; font-size:0.9rem; color:#6393d1; cursor:pointer; font-weight:500; transition:all 0.2s; font-family:inherit; }
+        .toggle-btn:hover { background:#e8f0fe; border-color:#6393d1; }
+
+        /* 許願框 */
+        .wish-section { text-align:center; padding:1.5rem; margin:1.5rem 0; background:linear-gradient(135deg, #f8e185 0%, #fff4d6 100%); border-radius:12px; border:2px dashed #eeba2b; }
+        .wish-list { max-width:600px; margin:1rem auto 0; text-align:left; }
+        .wish-item { background:white; border-radius:8px; padding:10px 14px; margin-bottom:8px; font-size:0.9rem; color:#112947; display:flex; justify-content:space-between; align-items:center; border:1px solid #eeba2b40; }
+        .wish-item .wish-text { flex:1; }
+        .wish-item .wish-name { font-size:0.8rem; color:#6b7280; margin-left:8px; white-space:nowrap; }
+        .wish-input-row { display:flex; gap:8px; max-width:500px; margin:0 auto; flex-wrap:wrap; }
+        .wish-input-row input { flex:1; min-width:120px; padding:8px 12px; border:1px solid #d1d5db; border-radius:8px; font-size:0.9rem; font-family:inherit; }
+        .wish-input-row button { padding:8px 16px; background:#eeba2b; color:#112947; border:none; border-radius:8px; font-weight:600; cursor:pointer; font-family:inherit; white-space:nowrap; }
+        .wish-input-row button:hover { background:#d4a520; }
         
         /* Modal 樣式 */
         .modal-backdrop { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.6); display: none; justify-content: center; align-items: center; z-index: 9999;}
@@ -102,6 +118,12 @@
         .recom-link:hover{background-color:#0f4392;}
 
         /* --- 領航員介紹區塊 --- */
+        .navigator-collapse { border: 2px solid #e5e7eb; border-radius: 12px; padding: 1rem 1.5rem; }
+        .navigator-toggle { cursor: pointer; list-style: none; display: flex; align-items: center; justify-content: space-between; }
+        .navigator-toggle::-webkit-details-marker { display: none; }
+        .toggle-hint { font-size: 0.85rem; color: #6b7280; transition: transform 0.2s; }
+        details[open] .toggle-hint { transform: rotate(180deg); }
+        details[open] .toggle-hint::after { content: ''; }
         .navigator-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; }
         .navigator-card { background: #fff; border: 2px solid #e5e7eb; border-radius: 12px; padding: 1rem; text-align: center; cursor: pointer; transition: all 0.2s; }
         .navigator-card:hover { border-color: #6393d1; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(15, 67, 146, 0.1); }
@@ -225,13 +247,18 @@
                 </div>
             </section>
 
-            <!-- 領航員介紹區塊 -->
+            <!-- 領航員介紹區塊（折疊） -->
             <section id="navigators-section" style="margin-bottom: 2rem;">
-                <h2 class="process-title text-left border-b pb-2 mb-4">認識我們的領航員</h2>
-                <p class="text-sm text-gray-500 mb-4">點擊頭像認識帶領你的領航員（持續新增中）</p>
-                <div id="navigator-list" class="navigator-grid">
-                    <div class="text-center p-6 text-gray-400" id="nav-loading">正在載入領航員資訊...</div>
-                </div>
+                <details class="navigator-collapse">
+                    <summary class="navigator-toggle">
+                        <h2 class="process-title text-left" style="margin:0; display:inline;">認識我們的領航員</h2>
+                        <span class="toggle-hint">點擊展開 ▼</span>
+                    </summary>
+                    <p class="text-sm text-gray-500 mb-4 mt-3">點擊頭像認識帶領你的領航員（持續新增中）</p>
+                    <div id="navigator-list" class="navigator-grid">
+                        <div class="text-center p-6 text-gray-400" id="nav-loading">正在載入領航員資訊...</div>
+                    </div>
+                </details>
             </section>
 
             <section id="course-list-section">
@@ -242,10 +269,25 @@
             </section>
 
             <!-- 許願池 -->
-            <section style="text-align:center; padding:1.5rem; margin:1.5rem 0; background:linear-gradient(135deg, #f8e185 0%, #fff4d6 100%); border-radius:12px; border:2px dashed #eeba2b;">
-                <p style="font-size:1.1rem; font-weight:700; color:#112947; margin:0 0 0.5rem 0;">🌟 沒有方便的時段嗎？</p>
-                <p style="font-size:0.95rem; color:#112947; margin:0 0 1rem 0; opacity:0.8;">告訴我們你希望的時間，我們來幫你揪！</p>
-                <a href="https://line.me/R/ti/p/@818bhwdw" target="_blank" style="display:inline-block; padding:0.6rem 1.5rem; background:#06C755; color:#fff; border-radius:8px; font-weight:600; text-decoration:none; font-size:0.95rem;">💬 到 LINE 許願時段</a>
+            <section style="padding:1.5rem; margin:1.5rem 0; background:linear-gradient(135deg, #f8e185 0%, #fff4d6 100%); border-radius:12px; border:2px dashed #eeba2b;">
+                <p style="font-size:1.1rem; font-weight:700; color:#112947; margin:0 0 0.5rem 0; text-align:center;">🌟 沒有方便的時段嗎？</p>
+                <p style="font-size:0.95rem; color:#112947; margin:0 0 1rem 0; opacity:0.8; text-align:center;">告訴我們你希望的時間和地點，我們來幫你揪！</p>
+                
+                <div id="wish-form" style="max-width:500px; margin:0 auto;">
+                    <div style="display:flex; gap:8px; margin-bottom:8px;">
+                        <input type="text" id="wish-name" placeholder="你的暱稱" style="flex:1; padding:8px 12px; border:1px solid #eeba2b; border-radius:8px; font-size:14px; font-family:inherit;">
+                        <input type="text" id="wish-city" placeholder="希望的城市" style="flex:1; padding:8px 12px; border:1px solid #eeba2b; border-radius:8px; font-size:14px; font-family:inherit;">
+                    </div>
+                    <div style="display:flex; gap:8px;">
+                        <input type="text" id="wish-text" placeholder="希望的時段，例如：週六下午、平日晚上..." style="flex:1; padding:8px 12px; border:1px solid #eeba2b; border-radius:8px; font-size:14px; font-family:inherit;">
+                        <button id="wish-submit" style="padding:8px 16px; background:#0f4392; color:white; border:none; border-radius:8px; font-weight:600; cursor:pointer; font-size:14px; white-space:nowrap;">許願</button>
+                    </div>
+                </div>
+
+                <!-- 許願牆 -->
+                <div id="wish-wall" style="margin-top:1rem; display:flex; flex-wrap:wrap; gap:8px; justify-content:center;">
+                </div>
+                <p id="wish-empty" style="text-align:center; font-size:0.85rem; color:#112947; opacity:0.5; margin-top:0.75rem;">還沒有人許願，成為第一個吧！</p>
             </section>
             
             <section id="other-courses" class="course-recom-section">
@@ -462,9 +504,9 @@
             let statusText, statusClass, reachText, reachColor;
             if (isFull) {
                 statusText = '已滿團';
-                statusClass = 'status-confirmed';
+                statusClass = 'status-full';
                 reachText = '本場次已額滿，敬請期待下一場！';
-                reachColor = 'text-blue-600';
+                reachColor = 'text-amber-600';
             } else if (formed) {
                 statusText = '已成團';
                 statusClass = 'status-confirmed';
@@ -702,16 +744,86 @@
     navModalCloseBtn.addEventListener('click', hideNavigatorModal);
     navModalBackdrop.addEventListener('click', e => { if (e.target === navModalBackdrop) hideNavigatorModal(); });
 
+    // ===== 許願牆 =====
+    let wishes = [];
+
+    async function fetchWishes() {
+        try {
+            const res = await fetch('/api/wishes', { cache: 'no-store' });
+            if (!res.ok) return [];
+            const data = await res.json();
+            return Array.isArray(data) ? data.map(item => item.json || item) : [];
+        } catch (e) {
+            return [];
+        }
+    }
+
+    function renderWishes(list) {
+        const wall = document.getElementById('wish-wall');
+        const empty = document.getElementById('wish-empty');
+        if (!list || list.length === 0) {
+            wall.innerHTML = '';
+            empty.style.display = 'block';
+            return;
+        }
+        empty.style.display = 'none';
+        wall.innerHTML = list.map(w => 
+            `<div style="background:white; border:1px solid #eeba2b; border-radius:8px; padding:6px 12px; font-size:13px; color:#112947;">
+                <span style="font-weight:600;">${w.name || '匿名'}</span>
+                <span style="opacity:0.6; margin:0 4px;">·</span>
+                <span style="color:#0f4392;">${w.city || ''}</span>
+                <span style="opacity:0.6; margin:0 4px;">·</span>
+                <span>${w.wish || ''}</span>
+            </div>`
+        ).join('');
+    }
+
+    document.getElementById('wish-submit').addEventListener('click', async () => {
+        const name = document.getElementById('wish-name').value.trim();
+        const city = document.getElementById('wish-city').value.trim();
+        const wish = document.getElementById('wish-text').value.trim();
+        if (!wish) { alert('請輸入你希望的時段'); return; }
+
+        const btn = document.getElementById('wish-submit');
+        btn.textContent = '送出中...';
+        btn.disabled = true;
+
+        try {
+            const r = await fetch('/api/wish-submit', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name: name || '匿名', city, wish })
+            });
+            if (!r.ok) throw new Error('送出失敗');
+            
+            document.getElementById('wish-name').value = '';
+            document.getElementById('wish-city').value = '';
+            document.getElementById('wish-text').value = '';
+            
+            // 重新載入許願牆
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            const updated = await fetchWishes();
+            renderWishes(updated);
+        } catch (err) {
+            alert('許願失敗，請稍後再試');
+        } finally {
+            btn.textContent = '許願';
+            btn.disabled = false;
+        }
+    });
+
     // ===== Step 4: 初始化頁面 =====
     window.onload = async () => {
         loadingMessage.style.display = 'block';
-        // 並行載入兩份資料
-        const [courses, navigators] = await Promise.all([
+        // 並行載入三份資料
+        const [courses, navigators, wishList] = await Promise.all([
             fetchCourseData(),
-            fetchNavigators()
+            fetchNavigators(),
+            fetchWishes()
         ]);
         renderCourseList(courses);
         renderNavigators(navigators);
+        renderWishes(wishList);
         updateLastUpdatedTime();
     };
 </script>
