@@ -21,23 +21,16 @@
             max-width:900px; width:100%; margin:2rem auto;
             background:#fff; border-radius:20px; box-shadow:0 20px 60px #0004; overflow:hidden;
         }
-        .header { background: #0f4392; color:#fff; padding:0; }
-        .header-main { display:flex; align-items:center; gap:24px; padding:28px 28px 24px; }
-        .logo-image { width:100px; height:100px; object-fit:cover; border-radius:12px; border:2px solid rgba(255,255,255,0.2); flex-shrink:0; }
-        .title-section { flex:1; }
-        .title-section .subtitle { font-size:0.875rem; opacity:0.7; margin:0 0 4px 0; }
-        .title-section h1 { margin:0; font-size:1.625rem; font-weight:700; text-align:left; line-height:1.2; }
-        .title-section h2 { margin:0 0 12px 0; font-size:1.25rem; font-weight:700; text-align:left; color:#f8e185; line-height:1.2; }
-        .header-desc { font-size:0.8rem; line-height:1.6; opacity:0.85; margin:0 0 14px 0; }
-        .header-actions { display:flex; gap:10px; flex-wrap:wrap; }
-        .header-actions a { display:inline-block; padding:6px 14px; border-radius:6px; font-size:0.75rem; font-weight:600; text-decoration:none; }
-        .btn-primary { background:#f8e185; color:#112947; }
-        .btn-secondary { background:rgba(255,255,255,0.15); color:#fff; }
-        .btn-primary:hover { background:#eeba2b; }
-        .btn-secondary:hover { background:rgba(255,255,255,0.25); }
-        .header-bar { background:rgba(255,255,255,0.05); padding:8px 28px; font-size:0.7rem; color:rgba(255,255,255,0.6); display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px; }
-        .header-bar a { color:#f8e185; text-decoration:none; }
-        .header-bar a:hover { text-decoration:underline; }
+        .header { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); color:#fff; padding:0; }
+        .header-main { text-align:center; padding:40px 28px 28px; }
+        .header-logo { max-width:320px; width:80%; margin:0 auto 16px; display:block; }
+        .header-eng { font-size:0.7rem; letter-spacing:4px; opacity:0.3; margin-bottom:12px; }
+        .header-divider { width:50px; height:1px; background:linear-gradient(90deg,transparent,#f8e185,transparent); margin:0 auto 12px; }
+        .header-tagline { font-size:0.95rem; color:#f8e185; font-weight:500; letter-spacing:1px; margin-bottom:6px; }
+        .header-desc { font-size:0.8rem; opacity:0.45; line-height:1.7; margin:0; }
+        .header-bar { background:rgba(0,0,0,0.3); padding:6px 28px; font-size:0.7rem; color:rgba(255,255,255,0.25); display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px; }
+        .header-bar a { color:rgba(248,225,133,0.5); text-decoration:none; }
+        .header-bar a:hover { color:#f8e185; text-decoration:underline; }
         .content {padding:2rem;}
         
         /* 揪團流程區塊樣式 */
@@ -180,12 +173,8 @@
             .step { width: 90%; max-width: 400px; margin-bottom: 10px; }
             .course-recom-grid { flex-direction: column; align-items: center; }
             .recom-card { flex: 1 1 100%; margin-bottom: 15px; }
-            .header-main { flex-direction: column; text-align: center; padding: 24px 20px 20px; }
-            .title-section .subtitle, .title-section h1, .title-section h2 { text-align: center; }
-            .title-section h1 { font-size: 1.3rem; }
-            .header-desc { text-align: center; }
-            .header-actions { justify-content: center; flex-wrap: wrap; }
-            .logo-image { width: 72px; height: 72px; }
+            .header-main { padding: 28px 20px 20px; }
+            .header-logo { max-width: 240px; }
             .header-bar { justify-content: center; text-align: center; flex-wrap: wrap; gap: 4px 12px; }
             .content { padding: 1rem; }
         }
@@ -197,22 +186,15 @@
 
         <header class="header">
             <div class="header-main">
-                <img src="/for_logo.png" alt="人類圖桌遊「未來導航」商品圖" class="logo-image">
-                <div class="title-section">
-                    <p class="subtitle">世界首款人類圖桌遊</p>
-                    <h1 class="text-white">未來導航｜做決策的工具</h1>
-                    <h2>揪團神器</h2>
-                    <p class="header-desc">透過遊戲自然理解人類圖，練習類型、策略和權威的決策流程。</p>
-                    <div class="header-actions">
-                        <a href="#course-list-section" class="btn-primary">選擇時段開始揪團 ↓</a>
-                        <a href="https://line.me/R/ti/p/@818bhwdw" target="_blank" class="btn-secondary">加入 LINE 官方帳號</a>
-                        <a href="https://humandesign-galaxy.com" target="_blank" class="btn-secondary">官方網站</a>
-                    </div>
-                </div>
+                <img src="/logo-future-nav.png" alt="未來導航" class="header-logo">
+                <div class="header-eng">FUTURE NAVIGATION</div>
+                <div class="header-divider"></div>
+                <div class="header-tagline">世界首款人類圖桌遊 ─ 做決策的工具</div>
+                <p class="header-desc">找到你的場次，一起開桌吧。</p>
             </div>
             <div class="header-bar">
-                <span id="last-updated">🚕 計程車導航系統更新中...</span>
-                <span>輸入「<a href="https://line.me/R/ti/p/@818bhwdw" target="_blank">桌遊揪團</a>」查詢最新人數</span>
+                <span id="last-updated">更新中...</span>
+                <span>LINE 輸入「<a href="https://line.me/R/ti/p/@818bhwdw" target="_blank">桌遊揪團</a>」查詢人數</span>
             </div>
         </header>
 
